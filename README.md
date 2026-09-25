@@ -14,6 +14,42 @@ The app has three core components:
 2. **Shared Capacity Dashboard** — a real-time view of space across all participating shelters, so staff can see where room exists at a glance.
 3. **Match & Alert Logic** — automatically flags when a shelter nearing capacity could transfer an animal to a shelter with open space, and notifies both parties. *(This is the piece the team is most focused on.)*
 
+## How It Works / Architecture
+
+```
+[Shelter Staff]                [Public Data]
+      |                              |
+      v                              v
+ Shelter Intake UI          Petfinder API (organizations
+ (login required)            + adoptable-animal listings,
+      |                      by location + radius)
+      v                              |
+   Backend API  <---------------------
+      |
+      v
+  Database (shelters, capacity records, animals, users)
+      |
+      v
+  Match/Alert Engine (runs on a schedule or on capacity update)
+      |
+      v
+ Shared Capacity Dashboard  +  Alerts/Notifications to shelter staff
+```
+
+**Data comes from two places, not one:**
+- **Self-reported capacity** — each participating shelter logs in through the Shelter Intake UI and enters current kennel counts, incoming intakes, and animals at risk. This is the source of truth for capacity, since no public API exposes it.
+- **Petfinder API** — used to pull each organization's public profile and adoptable-animal listings within a set radius, as supporting/contextual data (not a capacity source).
+
+**Participating shelters (initial radius — ~20 mi around Richardson, TX):**
+- Richardson Animal Shelter
+- Dallas Animal Services
+- Collin County Animal Services (McKinney)
+- Plano Animal Services
+- Irving Animal Care Campus
+- Carrollton Animal Services & Adoption Center
+
+**Match/Alert logic:** when a shelter's self-reported capacity crosses a threshold (e.g. near-full or an at-risk animal flagged), the engine checks other participating shelters' latest reported capacity and, if a match exists, notifies both shelters' staff with contact/transfer info.
+
 ## Tech Stack
 
 - **Frontend:** [e.g. React]
