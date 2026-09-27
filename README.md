@@ -27,7 +27,7 @@ The app has three core components:
    Backend API  <---------------------
       |
       v
-  Database (shelters, capacity records, animals, users)
+  Database (shelters, capacity records, animals, users, notification)
       |
       v
   Match/Alert Engine (runs on a schedule or on capacity update)
