@@ -1,10 +1,10 @@
-# DFW Shelter Coordination
+# DFW(Dallas Fort Worth) Shelter Coordination
 
 A tool that helps dog shelters across the Richardson/Dallas (DFW) area coordinate available space so fewer dogs are put down before every transfer option has been exhausted. Built for CS/CE/SE 3354 (Software Engineering), Fall 2026.
 
 ## The Problem
 
-Local shelters often don't know when a nearby shelter has open capacity. A dog can be euthanized at one location while space is available a few miles away, simply because there's no shared way to see it. This project closes that gap.
+Local shelters often don't know when a nearby shelter has open capacity. A dog can be euthanized at one location while space is available a few miles away, simply because there's no shared way to see it. This project closes that gap to ensure that these dogs can get to a new shelter .
 
 ## What It Does
 
@@ -14,7 +14,7 @@ The app has three core components:
 2. **Shared Capacity Dashboard** — a real-time view of space across all participating shelters, so staff can see where room exists at a glance.
 3. **Match & Alert Logic** — automatically flags when a shelter nearing capacity could transfer an animal to a shelter with open space, and notifies both parties. *(This is the piece the team is most focused on.)*
 
-## How It Works / Architecture
+## How It Works / Architecture 
 
 ```
 [Shelter Staff]                [Public Data]
@@ -41,7 +41,7 @@ The app has three core components:
 - **Petfinder API** — used to pull each organization's public profile and adoptable-animal listings within a set radius, as supporting/contextual data (not a capacity source).
 
 **Participating shelters (initial radius — ~20 mi around Richardson, TX):**
-- Richardson Animal Shelter
+- Richardson Animal Shelther
 - Dallas Animal Services
 - Collin County Animal Services (McKinney)
 - Plano Animal Services
