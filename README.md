@@ -1,4 +1,4 @@
-# DFW(Dallas Fort Worth) Shelter Coordination
+# DFW(Dallas Fort Worth) Shelter Coordination TEAM 2
 
 A tool that helps dog shelters across the Richardson/Dallas (DFW) area coordinate available space so fewer dogs are put down before every transfer option has been exhausted. Built for CS/CE/SE 3354 (Software Engineering), Fall 2026.
 
