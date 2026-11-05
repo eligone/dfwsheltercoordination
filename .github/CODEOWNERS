@@ -1,0 +1,15 @@
+# Changes to shared UI foundations need a code owner's approval (ADR 0007).
+# Add more teammates by GitHub username, e.g.:  /frontend/src/components/ui/  @eligone @teammate
+# Personal wireframe folders (frontend/src/wireframes/<name>/) have no owner, so no extra approval is needed.
+
+/.claude/                        @eligone
+/UI_GUIDE.md                     @eligone
+/docs/adr/                       @eligone
+/.github/                        @eligone
+/frontend/src/components/ui/     @eligone
+/frontend/src/index.css          @eligone
+/frontend/src/viewer/            @eligone
+/frontend/scripts/               @eligone
+/frontend/package.json           @eligone
+/frontend/package-lock.json      @eligone
+/frontend/vite.config.js         @eligone

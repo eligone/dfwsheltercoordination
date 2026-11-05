@@ -50,6 +50,16 @@ The app has three core components:
 
 **Match/Alert logic:** when a shelter's self-reported capacity crosses a threshold (e.g. near-full or an at-risk animal flagged), the engine checks other participating shelters' latest reported capacity and, if a match exists, notifies both shelters' staff with contact/transfer info.
 
+## Contributing / UI rules
+
+**Do not change the UI without the UI skill.** Read [UI_GUIDE.md](UI_GUIDE.md) first. The rules are in
+[`.claude/skills/ui/SKILL.md`](.claude/skills/ui/SKILL.md), decisions are recorded in
+[`docs/adr/`](docs/adr/README.md), and `main` only accepts pull requests that pass the `ui-check` job.
+
+```bash
+cd frontend && npm install && npm run dev   # wireframe viewer at http://localhost:5173
+```
+
 ## Tech Stack
 
 - **Frontend:** [e.g. React]
