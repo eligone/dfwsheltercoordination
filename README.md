@@ -54,7 +54,7 @@ The app has three core components:
 
 **Do not change the UI without the UI skill.** Read [UI_GUIDE.md](UI_GUIDE.md) first. The rules are in
 [`.claude/skills/ui/SKILL.md`](.claude/skills/ui/SKILL.md), decisions are recorded in
-[`docs/adr/`](docs/adr/README.md), and `main` only accepts pull requests that pass the `ui-check` job.
+[`docs/adr/`](docs/adr/README.md), and every pull request runs the `ui-check` job.
 
 ```bash
 cd frontend && npm install && npm run dev   # wireframe viewer at http://localhost:5173

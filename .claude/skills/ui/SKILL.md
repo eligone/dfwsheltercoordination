@@ -6,7 +6,7 @@ description: Required rules for ANY change to the DFW Shelter Tracker UI in fron
 # DFW Shelter Tracker: UI skill
 
 Every UI change follows these rules. CI runs `npm run check:ui` on every pull request
-to `main`. A PR that breaks a rule cannot be merged. Decisions behind these rules are in
+to `main`, so a PR that breaks a rule shows a red X. Decisions behind these rules are in
 `docs/adr/`.
 
 ## What we are building right now
@@ -35,13 +35,13 @@ Do not add tabs.
    subfolders.
 2. **Do not invent components.** Build only from `frontend/src/components/ui/`
    (import from `'../../components/ui'`). If something is genuinely missing, add it to
-   `components/ui/` in a **separate PR**. That needs CODEOWNERS approval because everyone
+   `components/ui/` in a **separate PR** after telling the team, because everyone
    shares it. Small layout `<div>`s with Tailwind classes inside your wireframe are fine.
 3. **Colors come from tokens only.** Do not use hex/rgb values, `bg-[#...]`, Tailwind
    default colors (`bg-blue-500` doesn't exist here), inline `style={...}` or CSS files.
    Allowed color classes: `canvas surface fill line muted ink accent accent-ink white
    status-full status-near status-open` with any prefix (`bg-`, `text-`, `border-`).
-   Tokens live in `frontend/src/index.css`, and changing them needs CODEOWNERS approval.
+   Tokens live in `frontend/src/index.css`. Don't change them without asking the team.
 4. **Imports:** only `react`, `../../components/ui`, `../../mock/<file>`, and files in your
    own folder.
 5. **Every wireframe file is named `<something>.wf.jsx` and exports:**

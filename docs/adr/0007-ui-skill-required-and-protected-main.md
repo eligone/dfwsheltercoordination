@@ -1,23 +1,22 @@
-# 0007. UI skill is mandatory; `main` is protected
+# 0007. UI skill is mandatory; PRs run an automatic check
 
 - **Status:** Accepted
 - **Date:** 2026-11-04
 
 ## Context
-Teammates use AI assistants to write UI. Without shared rules, each assistant invents its own styles
-and components.
+Teammates use AI assistants (Claude Code, GitHub Copilot) to write UI. Without shared rules, each
+assistant invents its own styles and components.
 
 ## Decision
-- `.claude/skills/ui/SKILL.md` holds the UI rules. Nobody changes UI without it (Claude Code loads it
-  automatically; with other tools, paste the file in first). `UI_GUIDE.md` explains this for humans.
+- `.claude/skills/ui/SKILL.md` holds the UI rules. Every UI prompt starts with `/ui` (Claude Code) or
+  `#file:.claude/skills/ui/SKILL.md` (Copilot); `.github/copilot-instructions.md` also points Copilot at
+  it. `UI_GUIDE.md` gives the exact prompts.
 - `frontend/scripts/check-ui.mjs` (`npm run check:ui`) checks the rules that can be checked
-  automatically: folder placement, imports, tokens-only colors, required `meta`.
-- `main` is protected: no direct pushes, changes go through a pull request, the `ui-check` CI job
-  (UI check + build) must pass, and CODEOWNERS must approve changes to shared files
-  (`components/ui`, tokens, the skill, ADRs, the checker and CI). Admins follow the same rules.
+  automatically: folder placement, imports, tokens-only colors, required `meta`. The `ui-check` GitHub
+  Actions job runs it plus a build on every pull request.
+- We chose **not** to lock `main` with branch protection; we are a small team and trust each other
+  to use pull requests and fix a red check before merging.
 
 ## Consequences
-- Nothing that breaks the checkable rules can reach `main`.
-- The check cannot prove someone *read* the skill; CODEOWNERS review covers the judgment calls.
-- Branch protection on a private repo needs GitHub Pro (free with the Student Developer Pack) or a
-  public repo.
+- Rule breaks are visible (red X on the PR) but not technically blocked.
+- If that stops working, turn on branch protection requiring the `ui-check` job (new ADR).

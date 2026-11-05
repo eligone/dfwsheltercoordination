@@ -35,7 +35,7 @@ for (const file of walk(src)) {
   if (rel.endsWith('.gitkeep')) continue;
 
   if (!ALLOWED_TOP.some((p) => rel === p || rel.startsWith(p))) {
-    fail(file, 2, 'Files may only live in components/ui, mock, viewer or wireframes. New shared components go in components/ui (needs CODEOWNERS review).');
+    fail(file, 2, 'Files may only live in components/ui, mock, viewer or wireframes. New shared components go in components/ui (ask the team first).');
     continue;
   }
   if (!/\.(jsx?|css)$/.test(rel)) continue;

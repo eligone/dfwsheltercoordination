@@ -9,7 +9,7 @@ duplicated.
 
 ## Decision
 `frontend/src/components/ui/` is the only place components are defined. Wireframes compose them. New
-components are added in their own PR and need CODEOWNERS approval.
+components are added in their own PR after telling the team.
 
 ## Consequences
 - Consistent look; a fix in one component fixes every screen.

@@ -14,4 +14,4 @@ using `template.md`.
 
 ## Consequences
 - The SE document can cite ADRs in Sections 5–8.
-- ADR changes go through a PR with CODEOWNERS review (see 0007).
+- ADR changes go through a PR the team can see.
