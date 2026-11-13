@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/*
+  DESIGN TOKENS: the only colors that exist in this project.
+  `--color-*: initial` removes Tailwind's default palette, so classes like
+  bg-blue-500 do not work. Wireframes are grayscale on purpose; for the real
+  app, change the values here and leave components alone.
+*/
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-canvas: #f4f4f5;   /* page background */
+  --color-surface: #ffffff;  /* cards, inputs, frames */
+  --color-fill: #e4e4e7;     /* placeholders, table header, label strip */
+  --color-line: #d4d4d8;     /* borders, dividers */
+  --color-muted: #71717a;    /* secondary text, hints */
+  --color-ink: #18181b;      /* primary text */
+  --color-accent: #3f3f46;   /* primary buttons, active nav */
+  --color-accent-ink: #ffffff;
+
+  /* capacity status (grayscale: dark = full, light = open) */
+  --color-status-full: #27272a;
+  --color-status-near: #71717a;
+  --color-status-open: #d4d4d8;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+body {
+  @apply bg-canvas text-ink font-sans antialiased;
+}

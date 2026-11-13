@@ -1,0 +1,130 @@
+// @vitest-environment node
+/**
+ * matchEngine.test.js - tests for UC-5 Find Available Shelters (and UC-6 results), UC-7 Request Dog Transfer, NFR-5, NFR-6.
+ * Test case IDs match the SE Document (Part 1.5 and 1.6). Creator: Anais Elizabeth Gonzalez.
+ */
+import { describe, it, expect } from 'vitest';
+import { createTestApp, signInAs, fillShelters, availableOf, releaseDog } from '../test/testApp.js';
+import { createStubMapping, scoreShelter } from './matchEngine.js';
+
+const ids = (m) => m.map((x) => x.shelterID);
+
+describe('scoring rule', () => {
+  it('0.5 x (1 - d/20) + 0.3 x min(open/50, 1) + 0.2 x sizeFit', () => {
+    expect(scoreShelter({ distanceMi: 17.8, openSpaces: 49, sizeFit: 1 })).toBeCloseTo(0.549, 4);
+    expect(scoreShelter({ distanceMi: 6.1, openSpaces: 16, sizeFit: 1 })).toBeCloseTo(0.6435, 4);
+    expect(scoreShelter({ distanceMi: 0, openSpaces: 500, sizeFit: 1 })).toBeCloseTo(1, 6);
+  });
+});
+
+describe('UC-5 Find Available Shelters', () => {
+  it('TC-5-01 large dog: size prefilled, ranked Irving, Carrollton, Collin, Dallas, with details', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    const start = app.matchEngine.startManualMatch('D-1042');
+    expect(start.size).toBe('large');
+    const { matches, message } = await app.matchEngine.findMatches({ dogId: 'D-1042', size: start.size });
+    expect(message).toBe(null);
+    expect(ids(matches)).toEqual(['irving', 'carr', 'collin', 'dal']);
+    [0.549, 0.5375, 0.4525, 0.405].forEach((score, i) => expect(matches[i].score).toBeCloseTo(score, 4));
+    expect(matches.map((m) => m.rank)).toEqual([1, 2, 3, 4]);
+    expect(matches[0]).toMatchObject({ shelterName: 'Irving Animal Care Campus', distance: 17.8, openSpaces: 49, contact: { phone: '(972) 555-0105', email: 'staff@irving.example' } });
+    expect(ids(matches).includes('plano')).toBe(false);
+  });
+  it('TC-5-02 small dog: Plano ranks first', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    const { matches } = await app.matchEngine.findMatches({ dogId: 'D-1043', size: 'small' });
+    expect(ids(matches)).toEqual(['plano', 'irving', 'carr', 'collin', 'dal']);
+    expect(matches[0].score).toBeCloseTo(0.6435, 4);
+  });
+  it('TC-5-03 a shelter becoming Full asks for the dog size without a manual search', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    expect(app.matchEngine.takePrompt('rich')).toBe(null);
+    app.shelterStore.updateCapacity('rich', 0);
+    await app.settle();
+    expect(app.matchEngine.takePrompt('rich')).toMatchObject({ kind: 'SELECT_SIZE', message: "Select the dog's size" });
+    expect(app.matchEngine.takePrompt('rich')).toBe(null);
+  });
+  it('TC-5-04 no match: message, widen option, search saved', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    fillShelters(app, ['dal', 'collin', 'plano', 'irving', 'carr']);
+    const result = await app.matchEngine.findMatches({ dogId: 'D-1042', size: 'large' });
+    expect(result).toMatchObject({ matches: [], message: 'No match found', canWiden: true });
+    expect(app.state.savedSearches).toHaveLength(1);
+  });
+  it('TC-5-05 the saved search reruns when another shelter frees space and alerts Richardson', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    fillShelters(app, ['dal', 'collin', 'plano', 'irving', 'carr']);
+    await app.matchEngine.findMatches({ dogId: 'D-1042', size: 'large' });
+    signInAs(app, 'collin');
+    app.shelterStore.updateCapacity('collin', 5);
+    await app.settle();
+    const alert = app.state.alerts.find((a) => a.recipientShelterID === 'rich' && a.message.startsWith('Match found for Biscuit') && a.message.includes('Collin County Animal Services'));
+    expect(alert).toMatchObject({ type: 'MATCH_FOUND', read: false });
+    expect(app.state.savedSearches).toHaveLength(0);
+  });
+  it('TC-5-06 no size means no search; cancelling means no search either', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    await expect(app.matchEngine.findMatches({ dogId: 'D-1042', size: '' })).rejects.toThrow("Select the dog's size.");
+    expect(app.mapping.calls).toBe(0); // the Mapping service was never called
+    app.matchEngine.startManualMatch('D-1042'); // opens the size prompt; the user clicks Cancel
+    expect(app.mapping.calls).toBe(0);
+  });
+});
+
+describe('UC-7 Request Dog Transfer', () => {
+  it('TC-7-01 sends the request to Collin: Pending, saved, Collin alerted', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    releaseDog(app, 'D-1042');
+    const result = app.transfers.createFromMatch({ shelterID: 'collin', dogId: 'D-1042', size: 'large', notes: 'Needs daily meds' });
+    expect(result.message).toBe('Transfer request sent.');
+    expect(result.status).toBe('Pending');
+    expect(app.transfers.getRequest(result.request.id)).toMatchObject({ toShelterID: 'collin', dogId: 'D-1042', notes: 'Needs daily meds' });
+    expect(app.state.alerts.some((a) => a.recipientShelterID === 'collin' && a.transferRequestID === result.request.id)).toBe(true);
+  });
+  it('TC-7-02 missing information: fields named, nothing saved', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    const before = app.state.transfers.length;
+    expect(() => app.transfers.createFromMatch({ shelterID: 'collin', dogId: '', size: 'large' })).toThrow('Please complete the highlighted fields.');
+    try { app.transfers.createFromMatch({ shelterID: 'collin', dogId: '', size: 'large' }); } catch (e) { expect(e.fields).toEqual(['dogId']); }
+    expect(app.state.transfers).toHaveLength(before);
+  });
+  it('TC-7-03 the shelter filled up meanwhile: message, nothing saved', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    releaseDog(app, 'D-1042');
+    fillShelters(app, ['collin']);
+    const before = app.state.transfers.length;
+    expect(() => app.transfers.createFromMatch({ shelterID: 'collin', dogId: 'D-1042', size: 'large' })).toThrow('This shelter no longer has space.');
+    expect(app.state.transfers).toHaveLength(before);
+  });
+  it('TC-7-04 a large dog cannot be sent to Plano', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    releaseDog(app, 'D-1042');
+    const before = app.state.transfers.length;
+    expect(() => app.transfers.createFromMatch({ shelterID: 'plano', dogId: 'D-1042', size: 'large' })).toThrow('This shelter cannot house large dogs.');
+    expect(app.state.transfers).toHaveLength(before);
+    expect(availableOf(app, 'plano')).toBe(16);
+  });
+});
+
+describe('NFR-5 and NFR-6', () => {
+  it('NTC-06 match results appear within 5000 ms (30 runs, 300 ms Mapping delay per shelter)', async () => {
+    const app = signInAs(createTestApp({ mapping: createStubMapping({ delayMs: 300 }) }), 'rich');
+    const times = [];
+    for (let i = 0; i < 30; i += 1) {
+      const t0 = performance.now();
+      await app.matchEngine.findMatches({ dogId: 'D-1042', size: 'large', save: false });
+      times.push(performance.now() - t0);
+    }
+    const max = Math.max(...times);
+    const median = [...times].sort((a, b) => a - b)[15];
+    console.log(`NTC-06 max ${max.toFixed(0)} ms, median ${median.toFixed(0)} ms`);
+    expect(max).toBeLessThanOrEqual(5000);
+  });
+  it('NTC-07 an unverified account is denied matches and contact details', async () => {
+    const app = signInAs(createTestApp(), 'intern');
+    await expect(app.matchEngine.findMatches({ dogId: 'D-1042', size: 'large' })).rejects.toThrow('Your account must be verified to view matches.');
+    expect(() => app.matchEngine.startManualMatch('D-1042')).toThrow('Your account must be verified to view matches.');
+    expect(() => app.transfers.createFromMatch({ shelterID: 'collin', dogId: 'D-1042', size: 'large' })).toThrow('Your account must be verified to view matches.');
+    expect(app.mapping.calls).toBe(0);
+  });
+});
