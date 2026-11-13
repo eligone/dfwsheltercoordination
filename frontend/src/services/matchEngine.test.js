@@ -128,3 +128,32 @@ describe('NFR-5 and NFR-6', () => {
     expect(app.mapping.calls).toBe(0);
   });
 });
+
+describe('Audit fix B3: unverified accounts never get matches or contact details (NFR-6)', () => {
+  it('NTC-07b the intern is refused with FORBIDDEN by createRequest, getShelterDetails and every matching call', async () => {
+    const app = signInAs(createTestApp(), 'intern');
+    const refused = async (fn) => { try { await fn(); return 'allowed'; } catch (e) { return `${e.code}: ${e.message}`; } };
+    const msg = 'FORBIDDEN: Your account must be verified to view matches.';
+    expect(await refused(() => app.transfers.createRequest({ dogId: 'D-1051', urgency: 'HIGH' }))).toBe(msg);
+    expect(await refused(() => app.matchEngine.findMatches({ dogId: 'D-1042', size: 'large' }))).toBe(msg);
+    expect(await refused(() => app.matchEngine.startManualMatch('D-1042'))).toBe(msg);
+    expect(await refused(() => app.matchEngine.widenSearch(1))).toBe(msg);
+    expect(await refused(() => app.transfers.createFromMatch({ shelterID: 'collin', dogId: 'D-1051', size: 'large' }))).toBe(msg);
+    expect(await refused(() => app.shelterStore.getShelterDetails('collin'))).toBe(msg);
+    expect(app.state.transfers).toHaveLength(3); // nothing was created; the seed has T-298, T-301, T-302
+    expect(app.mapping.calls).toBe(0);
+  });
+  it('NTC-07c contact fields are blank for the intern in the dashboard, alerts and My Dogs, and present for verified staff', () => {
+    const intern = signInAs(createTestApp(), 'intern');
+    const rows = intern.shelterStore.listShelters();
+    expect(rows).toHaveLength(6); // the numbers are still shown
+    expect(rows.every((r) => r.phone === null && r.email === null)).toBe(true);
+    expect(intern.alerts.openAlert('A-90').sender).toEqual({ name: 'Collin County Animal Services', phone: null, email: null });
+    expect(intern.transfers.listMyDogs().rows[0].receivingContact).toEqual({ phone: null, email: null });
+    expect(intern.transfers.getMyDogTransfer('T-301').receivingContact).toEqual({ phone: null, email: null });
+    const staff = signInAs(createTestApp(), 'rich');
+    expect(staff.shelterStore.listShelters().every((r) => r.phone && r.email)).toBe(true);
+    expect(staff.alerts.openAlert('A-90').sender.phone).toBe('(972) 555-0103');
+    expect(staff.shelterStore.getShelterDetails('collin').phone).toBe('(972) 555-0103');
+  });
+});

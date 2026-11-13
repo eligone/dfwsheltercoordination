@@ -56,7 +56,7 @@ export function createTransferService(ctx) {
   function ownDog(dogId, staff) {
     const dog = dogOf(dogId);
     if (!dog) throw new ServiceError('NOT_FOUND', 'Dog not found.');
-    if (dog.shelterID !== staff.shelterID) throw new ServiceError('FORBIDDEN', MESSAGES.OWN_SHELTER_ONLY);
+    if (dog.shelterID !== staff.shelterID) throw new ServiceError('FORBIDDEN', MESSAGES.NOT_YOUR_DOG);
     return dog;
   }
 
@@ -65,7 +65,7 @@ export function createTransferService(ctx) {
 
     /** UC-3 main course: create the request, rank shelters, alert the best three (FR-9, FR-10, FR-11, FR-17, FR-18). */
     async createRequest({ dogId, urgency, notes = '' }) {
-      const staff = auth.requireStaff();
+      const staff = auth.requireVerified(); // NFR-6: the ranked results include contact details
       validate({ dogId, urgency }, ['dogId', 'urgency']);
       const dog = ownDog(dogId, staff);
       const r = reserve({ dog, staff, urgency, notes });
@@ -148,6 +148,7 @@ export function createTransferService(ctx) {
       if (!canMoveTo(r.status, S.COMPLETED)) throw new ServiceError('NOT_PENDING', MESSAGES.NOT_PENDING);
       const from = shelter(r.fromShelterID);
       from.dogsHoused -= 1; from.lastUpdated = clock.now();
+      dogOf(r.dogId).shelterID = r.toShelterID; // the dog now lives at the receiving shelter, so it cannot be re-requested from here
       r.status = S.COMPLETED; r.respondedAt = clock.now();
       audit(r, 'Completed', staff);
       notifySender(r, `Transfer ${r.id} completed`, 'low');
@@ -161,10 +162,17 @@ export function createTransferService(ctx) {
       const staff = auth.requireStaff();
       if (staff.shelterID !== r.fromShelterID) throw new ServiceError('FORBIDDEN', MESSAGES.OWN_SHELTER_ONLY);
       if (!canMoveTo(r.status, S.CANCELLED)) throw new ServiceError('NOT_PENDING', MESSAGES.NOT_PENDING);
-      if (r.status === S.ACCEPTED) { const to = shelter(r.toShelterID); to.dogsHoused -= 1; to.lastUpdated = clock.now(); }
+      const wasAccepted = r.status === S.ACCEPTED;
+      // FR-21: tell the shelters involved. An accepting shelter must release the kennel it reserved.
+      const recipients = wasAccepted ? [r.toShelterID] : r.alertedTo.filter((sid) => r.responses[sid]?.status !== S.DECLINED);
+      if (wasAccepted) { const to = shelter(r.toShelterID); to.dogsHoused -= 1; to.lastUpdated = clock.now(); }
       r.status = S.CANCELLED; r.respondedAt = clock.now();
       state.alerts.filter((a) => a.transferRequestID === r.id && a.type === AlertType.MATCH_FOUND).forEach((a) => { a.cancelled = true; });
       audit(r, 'Cancelled', staff);
+      const fromName = shelter(r.fromShelterID).name;
+      for (const sid of recipients) {
+        ctx.alerts.create({ type: AlertType.STATUS_CHANGE, priority: wasAccepted ? 'high' : 'medium', message: wasAccepted ? MESSAGES.TRANSFER_CANCELLED_RELEASE(r.id, fromName) : MESSAGES.TRANSFER_CANCELLED(r.id, fromName), recipientShelterID: sid, senderShelterID: r.fromShelterID, transferRequestID: r.id, dogId: r.dogId });
+      }
       changed(r);
       return { request: r };
     },
@@ -172,18 +180,18 @@ export function createTransferService(ctx) {
     /** UC-10 (FR-36): this shelter's dogs that have a transfer; Completed ones stay visible (team decision). */
     listMyDogs() {
       const staff = auth.requireStaff();
-      const rows = state.transfers.filter((t) => t.fromShelterID === staff.shelterID).sort((a, b) => b.requestedAt - a.requestedAt).map((t) => this._myDogRow(t));
+      const rows = state.transfers.filter((t) => t.fromShelterID === staff.shelterID).sort((a, b) => b.requestedAt - a.requestedAt).map((t) => this._myDogRow(t, staff.verified));
       return { rows, message: rows.length ? null : MESSAGES.NO_ACTIVE_TRANSFERS };
     },
-    _myDogRow(t) {
+    _myDogRow(t, withContacts = true) {
       const dog = dogOf(t.dogId); const to = t.toShelterID ? shelter(t.toShelterID) : null;
-      return { requestID: t.id, dogId: dog.id, dogName: dog.name, breed: dog.breed, size: dog.size, status: t.status, toShelterName: to?.name ?? null, requestedAt: t.requestedAt, receivingContact: to ? { phone: to.phone, email: to.email } : null };
+      return { requestID: t.id, dogId: dog.id, dogName: dog.name, breed: dog.breed, size: dog.size, status: t.status, toShelterName: to?.name ?? null, requestedAt: t.requestedAt, receivingContact: to ? { phone: withContacts ? to.phone : null, email: withContacts ? to.email : null } : null };
     },
     getMyDogTransfer(requestID) {
       const staff = auth.requireStaff();
       const t = request(requestID);
       if (t.fromShelterID !== staff.shelterID) throw new ServiceError('FORBIDDEN', MESSAGES.OWN_SHELTER_ONLY);
-      return this._myDogRow(t);
+      return this._myDogRow(t, staff.verified);
     },
 
     /** NFR-9: audit entries still inside the retention period; purgeExpired removes the others. */

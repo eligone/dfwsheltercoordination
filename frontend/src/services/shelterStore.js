@@ -29,10 +29,10 @@ export function createShelterStore(ctx) {
   const find = (id) => state.shelters.find((s) => s.id === id);
 
   /** FR-33/FR-35: what the dashboard and the details page show for one shelter. */
-  function toView(s) {
+  function toView(s, withContacts = true) {
     const status = statusOf(s, clock.now());
     return {
-      id: s.id, name: s.name, city: s.city, address: s.address, phone: s.phone, email: s.email, distanceMi: s.distanceMi,
+      id: s.id, name: s.name, city: s.city, address: s.address, phone: withContacts ? s.phone : null, email: withContacts ? s.email : null, distanceMi: s.distanceMi,
       dogsHoused: s.dogsHoused, totalCapacity: s.totalCapacity, availableKennels: s.totalCapacity - s.dogsHoused,
       status, statusLabel: STATUS_LABEL[status], lastUpdated: s.lastUpdated, lastUpdatedLabel: s.lastUpdated ? formatTs(s.lastUpdated) : MESSAGES.NOT_AVAILABLE,
     };
@@ -56,10 +56,11 @@ export function createShelterStore(ctx) {
   }
 
   return {
-    listShelters() { auth.requireStaff(); return state.shelters.map(toView); },
-    getShelter(id) { auth.requireStaff(); const s = find(id); return s ? toView(s) : null; },
-    /** UC-9: details page data (FR-35). */
-    getShelterDetails(id) { return this.getShelter(id); },
+    /** NFR-6: unverified accounts see the dashboard numbers but no phone numbers or emails. */
+    listShelters() { const staff = auth.requireStaff(); return state.shelters.map((s) => toView(s, staff.verified)); },
+    getShelter(id) { const staff = auth.requireStaff(); const s = find(id); return s ? toView(s, staff.verified) : null; },
+    /** UC-9: details page data (FR-35). Contact details need a verified account (NFR-6). */
+    getShelterDetails(id) { const staff = auth.requireVerified(); const s = find(id); return s ? toView(s, staff.verified) : null; },
 
     /** FR-3: validate first and return the text for the confirmation pop-up; nothing is saved yet. */
     previewCapacityChange(shelterID, raw) {

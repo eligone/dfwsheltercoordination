@@ -164,3 +164,55 @@ describe('NFR-8 and NFR-9', () => {
     expect(entries()).toHaveLength(0);
   });
 });
+
+describe('Audit fix B1: a completed dog cannot be transferred again', () => {
+  it('TC-4-06 after Completed the dog belongs to the receiving shelter; re-request is refused; My Dogs still lists it', async () => {
+    const app = signInAs(createTestApp(), 'collin');
+    app.transfers.accept('T-301');
+    signInAs(app, 'rich');
+    app.transfers.complete('T-301');
+    expect(app.state.dogs.find((d) => d.id === 'D-1042').shelterID).toBe('collin');
+    await expect(app.transfers.createRequest({ dogId: 'D-1042', urgency: 'HIGH' })).rejects.toThrow('This dog is not at your shelter.');
+    expect(() => app.transfers.createFromMatch({ shelterID: 'irving', dogId: 'D-1042', size: 'large' })).toThrow('This dog is not at your shelter.');
+    expect(app.state.transfers.filter((t) => t.dogId === 'D-1042')).toHaveLength(1); // no second transfer was created
+    const row = app.transfers.listMyDogs().rows.find((r) => r.dogName === 'Biscuit');
+    expect(row).toMatchObject({ status: 'Completed', toShelterName: 'Collin County Animal Services' }); // still visible in My Dogs (FR-36)
+  });
+});
+
+describe('Audit fix B4: cancelling notifies the other shelter (FR-21)', () => {
+  const inboxMessages = (app, who) => { signInAs(app, who); return app.alerts.getInbox().alerts; };
+
+  it('TC-4-07a cancelling an Accepted transfer frees the kennel and tells the receiving shelter to release it (High)', () => {
+    const app = signInAs(createTestApp(), 'collin');
+    app.transfers.accept('T-301');
+    expect(availableOf(app, 'collin')).toBe(39);
+    signInAs(app, 'rich');
+    app.transfers.cancel('T-301');
+    expect(availableOf(app, 'collin')).toBe(40);
+    const notice = inboxMessages(app, 'collin').find((a) => a.message.startsWith('Transfer T-301 cancelled'));
+    expect(notice).toMatchObject({ message: 'Transfer T-301 cancelled by Richardson Animal Shelter. Please release the reserved kennel.', priority: 'high', read: false, type: 'STATUS_CHANGE' });
+  });
+  it('TC-4-07b cancelling a Pending transfer notifies every shelter that was asked, with no capacity change', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    await app.transfers.createRequest({ dogId: 'D-1051', urgency: 'NORMAL' });
+    const before = ['irving', 'carr', 'collin'].map((id) => availableOf(app, id));
+    app.transfers.cancel('T-303');
+    expect(['irving', 'carr', 'collin'].map((id) => availableOf(app, id))).toEqual(before);
+    for (const who of ['irving', 'carr', 'collin']) {
+      const msgs = inboxMessages(app, who).filter((a) => a.message.includes('T-303'));
+      expect(msgs.map((a) => a.message)).toEqual(['Transfer T-303 cancelled by Richardson Animal Shelter']); // the old match alert is hidden, only the cancel notice remains
+      expect(msgs[0].priority).toBe('medium');
+    }
+  });
+  it('TC-4-07c a shelter that already declined is not told; other shelters cannot cancel', () => {
+    const app = signInAs(createTestApp(), 'collin');
+    app.transfers.decline('T-301', 'No room for large dogs');
+    signInAs(app, 'dal');
+    expect(() => app.transfers.cancel('T-301')).toThrow('You can only update your own shelter.');
+    signInAs(app, 'rich');
+    app.transfers.cancel('T-301');
+    expect(inboxMessages(app, 'collin').some((a) => a.message.startsWith('Transfer T-301 cancelled'))).toBe(false);
+    expect(inboxMessages(app, 'carr').some((a) => a.message.startsWith('Transfer T-301 cancelled'))).toBe(true);
+  });
+});

@@ -34,7 +34,7 @@ export function createAuthService(ctx) {
     /** NFR-6: only verified accounts may see matches and contact details. */
     requireVerified() {
       const staff = this.requireStaff();
-      if (!staff.verified) throw new ServiceError('NOT_VERIFIED', MESSAGES.NEED_VERIFIED);
+      if (!staff.verified) throw new ServiceError('FORBIDDEN', MESSAGES.NEED_VERIFIED);
       return staff;
     },
     /** NFR-1 and NFR-4: staff act only on their own shelter. */

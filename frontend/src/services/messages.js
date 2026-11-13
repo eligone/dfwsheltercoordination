@@ -9,6 +9,7 @@ export const MESSAGES = {
   // UC-1 / UC-2 (Hoang)
   CAPACITY_UPDATED: 'Capacity updated.',
   OWN_SHELTER_ONLY: 'You can only update your own shelter.',
+  NOT_YOUR_DOG: 'This dog is not at your shelter.',
   NO_CHANGES: 'No changes were found.', // [A3]
   SELECT_RANGE: 'Select a time range to view records.',
   RANGE_ERROR: (total) => `Enter a whole number between 0 and ${total}.`,
@@ -24,6 +25,8 @@ export const MESSAGES = {
   ONLY_RESPOND_OWN: 'You can only respond to requests sent to your shelter.',
   CANNOT_HOUSE: (size) => `This shelter cannot house ${size} dogs.`,
   TRANSFER_SENT: 'Transfer request sent.',
+  TRANSFER_CANCELLED: (id, name) => `Transfer ${id} cancelled by ${name}`,
+  TRANSFER_CANCELLED_RELEASE: (id, name) => `Transfer ${id} cancelled by ${name}. Please release the reserved kennel.`,
   // UC-5 (Anais)
   SELECT_SIZE: "Select the dog's size.",
   SIZE_PROMPT: "Select the dog's size",

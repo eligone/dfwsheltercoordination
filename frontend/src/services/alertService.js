@@ -59,7 +59,7 @@ export function createAlertService(ctx) {
       const sender = alert.senderShelterID ? state.shelters.find((s) => s.id === alert.senderShelterID) : null;
       const dog = state.dogs.find((d) => d.id === (alert.dogId ?? request?.dogId)) ?? null;
       return {
-        alert: view(alert), dog, sender: sender ? { name: sender.name, phone: sender.phone, email: sender.email } : null,
+        alert: view(alert), dog, sender: sender ? { name: sender.name, phone: staff.verified ? sender.phone : null, email: staff.verified ? sender.email : null } : null, // NFR-6
         outcome: request ? { requestID: request.id, status: request.status, history: state.auditLog.filter((e) => e.requestID === request.id) } : null,
       };
     },

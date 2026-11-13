@@ -40,14 +40,15 @@ describe('UC-14 View Alerts Inbox', () => {
     expect(inbox.emptyHint).toBe("You're all caught up. New alerts will appear here.");
     expect(inbox.unreadCount).toBe(0);
   });
-  it('TC-14-05 accepted, declined and cancelled transfers notify the sender with medium priority', () => {
+  it('TC-14-05 accepted, declined and cancelled transfers each notify the other shelter', () => {
     const app = signInAs(createTestApp(), 'collin');
     app.transfers.accept('T-301');
     signInAs(app, 'rich');
     const accepted = app.alerts.getInbox().alerts.find((a) => a.message === 'Transfer T-301 accepted by Collin County Animal Services');
     expect(accepted).toMatchObject({ read: false, priority: 'medium' });
-    app.transfers.cancel('T-301');
-    expect(app.alerts.getInbox().alerts.some((a) => a.id && a.message === 'Transfer T-301 accepted by Collin County Animal Services')).toBe(true);
+    app.transfers.cancel('T-301'); // Richardson cancels the accepted transfer
+    signInAs(app, 'collin');
+    expect(app.alerts.getInbox().alerts.some((a) => a.message === 'Transfer T-301 cancelled by Richardson Animal Shelter. Please release the reserved kennel.')).toBe(true);
     const app2 = signInAs(createTestApp(), 'collin');
     app2.transfers.decline('T-301', 'Full of puppies');
     signInAs(app2, 'rich');

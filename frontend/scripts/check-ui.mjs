@@ -36,7 +36,7 @@ for (const file of walk(src)) {
   if (rel.endsWith('.gitkeep')) continue;
 
   if (!ALLOWED_TOP.some((p) => rel === p || rel.startsWith(p))) {
-    fail(file, 2, 'Files may only live in components/ui, mock, viewer or wireframes. New shared components go in components/ui (ask the team first).');
+    fail(file, 2, 'Files may only live in components/ui, mock, viewer, wireframes, services, features or test. New shared components go in components/ui (ask the team first).');
     continue;
   }
   if (!/\.(jsx?|css)$/.test(rel)) continue;
@@ -45,7 +45,7 @@ for (const file of walk(src)) {
   const lines = text.split('\n');
 
   // Rule 3: colors come from tokens only (index.css is where tokens are defined).
-  if (rel !== 'index.css') {
+  if (rel !== 'index.css' && /\.(jsx|css)$/.test(rel)) { // plain .js files (services, tests) can hold words like "red" in text
     lines.forEach((line, i) => {
       if (/^\s*(\/\/|\*)/.test(line)) return; // skip comments
       if (RAW_COLOR.test(line)) fail(file, 3, `line ${i + 1}: raw color value. Use a token class (bg-fill, text-muted, ...).`);
