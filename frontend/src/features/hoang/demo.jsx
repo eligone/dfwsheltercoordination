@@ -12,6 +12,25 @@ import '../../index.css';
 // One shared in-memory app for both use cases.
 const app = signInAs(createTestApp(), 'rich');
 
+/*
+ * NTC-02 testing setup.
+ * A 500 ms delay is enabled only when the demo URL
+ * includes ?delayMs=500.
+ */
+const delayMs = Number(
+  new URLSearchParams(window.location.search).get('delayMs') || 0
+);
+
+if (delayMs === 500) {
+  const originalUpdate =
+    app.shelterStore.updateCapacity.bind(app.shelterStore);
+
+  app.shelterStore.updateCapacity = async (...args) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return originalUpdate(...args);
+  };
+}
+
 function HoangDemo() {
   const [screen, setScreen] = useState('capacity');
 

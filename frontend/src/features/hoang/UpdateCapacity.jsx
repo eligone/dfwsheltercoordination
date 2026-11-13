@@ -43,13 +43,12 @@ export default function UpdateCapacity({ app }) {
     }
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     try {
-      const result = app.shelterStore.updateCapacity(
-        shelterId,
-        preview.newAvailable
-      );
-
+      const result = await app.shelterStore.updateCapacity(
+  shelterId,
+  preview.newAvailable
+);
       setShelter(result.shelter);
       setValue(String(result.shelter.availableKennels));
       setSuccess(result.message);
