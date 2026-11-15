@@ -6,4 +6,5 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   base: './',
   plugins: [react(), tailwindcss()],
+  build: { rollupOptions: { input: { viewer: 'index.html', saif: 'saif-demo.html' } } },
 });

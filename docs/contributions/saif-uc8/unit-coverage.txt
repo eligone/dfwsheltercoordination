@@ -1,0 +1,45 @@
+
+> dfw-coordination-frontend@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v5.1.0 /Users/saifyusuff/Documents/Codex/2026-11-15/files-mentioned-by-the-user-codex/work/dfwsheltercoordination/frontend
+      Coverage enabled with v8
+
+
+ Test Files  13 passed (13)
+      Tests  127 passed (127)
+   Start at  17:43:35
+   Duration  10.54s (tests 80%, environment 11%, setup 4%, transform 2%, import 2%, worker 1%)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   94.38 |    85.74 |   97.24 |   96.59 |
+ features/anais    |   87.78 |    80.39 |    92.5 |   88.88 |
+  FindShelters.jsx |   97.18 |    91.37 |     100 |   98.03 | 59
+  MatchFlow.jsx    |   94.11 |       80 |   85.71 |   94.11 | 51
+  ...tTransfer.jsx |   93.75 |    80.76 |     100 |     100 | 34,52
+  demo.jsx         |       0 |        0 |       0 |       0 | 17-34
+ features/saif     |   80.64 |       75 |   88.88 |   83.33 |
+  demo.jsx         |       0 |        0 |       0 |       0 | 9-12
+ services          |   96.29 |     87.7 |   98.53 |   98.92 |
+  alertService.js  |   93.22 |    81.13 |      92 |   97.29 | 73
+  authService.js   |     100 |    93.75 |     100 |     100 | 17
+  dashboard.js     |     100 |     92.3 |     100 |     100 | 16,24
+  index.js         |      96 |      100 |    90.9 |   94.44 | 26
+  matchEngine.js   |   91.86 |    82.69 |     100 |   96.36 | 30-31
+  models.js        |      92 |       60 |     100 |     100 | 32-33
+  ...ionService.js |   94.66 |    82.69 |     100 |   98.21 | 42
+  pdf.js           |     100 |    85.71 |     100 |     100 | 18
+  shelterStore.js  |   98.66 |    95.45 |     100 |     100 | 54,63
+  ...ferService.js |   96.79 |    89.88 |     100 |     100 | ...35,146,148,164
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 94.38% ( 790/837 )
+Branches     : 85.74% ( 415/484 )
+Functions    : 97.24% ( 247/254 )
+Lines        : 96.59% ( 568/588 )
+================================================================================
