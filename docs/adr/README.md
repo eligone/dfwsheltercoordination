@@ -13,6 +13,7 @@ work stays consistent. One decision per file.
 | [0006](0006-navigation-follows-nfr-11.md) | Navigation is Home / My Dogs / Settings (NFR-11, sitemap 4.1) | Accepted |
 | [0007](0007-ui-skill-required-and-protected-main.md) | UI skill is mandatory; PRs run an automatic check | Accepted |
 | [0008](0008-manual-screenshots.md) | Screenshots are taken by hand from the viewer | Accepted |
+| [0009](0009-part1-implementation-layout-and-test-stack.md) | Part 1 layout (`features/`, `services/`, tests) and Vitest/RTL/Playwright stack | Accepted |
 
 ## Adding one
 1. Copy `template.md` to `NNNN-short-title.md` (next number).

@@ -23,7 +23,8 @@ const walk = (dir) =>
 if (!existsSync(skill)) errors.push('  .claude/skills/ui/SKILL.md is missing. Do not delete the UI skill.');
 
 // Only these places may hold source files (Rule 2: no components outside components/ui).
-const ALLOWED_TOP = ['components/ui/', 'mock/', 'viewer/', 'wireframes/', 'main.jsx', 'index.css'];
+// ADR-0009 added services/, features/ and test/ for Assignment 4 (implementation + tests).
+const ALLOWED_TOP = ['components/ui/', 'mock/', 'viewer/', 'wireframes/', 'services/', 'features/', 'test/', 'main.jsx', 'index.css'];
 
 const PALETTE = 'slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|black';
 const DEFAULT_COLOR_CLASS = new RegExp(`\\b(?:bg|text|border|ring|fill|stroke|from|via|to|outline|divide|decoration|shadow|placeholder|accent|caret)-(?:${PALETTE})(?:-\\d{2,3})?\\b`);
@@ -35,7 +36,7 @@ for (const file of walk(src)) {
   if (rel.endsWith('.gitkeep')) continue;
 
   if (!ALLOWED_TOP.some((p) => rel === p || rel.startsWith(p))) {
-    fail(file, 2, 'Files may only live in components/ui, mock, viewer or wireframes. New shared components go in components/ui (ask the team first).');
+    fail(file, 2, 'Files may only live in components/ui, mock, viewer, wireframes, services, features or test. New shared components go in components/ui (ask the team first).');
     continue;
   }
   if (!/\.(jsx?|css)$/.test(rel)) continue;
@@ -44,13 +45,29 @@ for (const file of walk(src)) {
   const lines = text.split('\n');
 
   // Rule 3: colors come from tokens only (index.css is where tokens are defined).
-  if (rel !== 'index.css') {
+  if (rel !== 'index.css' && /\.(jsx|css)$/.test(rel)) { // plain .js files (services, tests) can hold words like "red" in text
     lines.forEach((line, i) => {
       if (/^\s*(\/\/|\*)/.test(line)) return; // skip comments
       if (RAW_COLOR.test(line)) fail(file, 3, `line ${i + 1}: raw color value. Use a token class (bg-fill, text-muted, ...).`);
       if (ARBITRARY_COLOR.test(line)) fail(file, 3, `line ${i + 1}: arbitrary color class like bg-[...]. Use a token class.`);
       if (DEFAULT_COLOR_CLASS.test(line)) fail(file, 3, `line ${i + 1}: Tailwind default palette color. Only token colors exist.`);
     });
+  }
+
+  // Rule 6 (ADR-0009): feature code lives in features/<owner>/ and never imports another owner's folder.
+  if (rel.startsWith('features/')) {
+    const fparts = rel.split('/');
+    if (fparts.length < 3) {
+      fail(file, 6, 'Feature files must be inside features/<your-name>/ (e.g. features/hoang/UpdateCapacity.jsx).');
+      continue;
+    }
+    const owner = fparts[1];
+    for (const m of text.matchAll(/(?:import|from)\s+['"]([^'"]+)['"]/g)) {
+      if (!m[1].startsWith('.')) continue; // packages are fine
+      const target = relative(src, join(file, '..', m[1])).split(sep).join('/');
+      const mm = target.match(/^features\/([\w-]+)(\/|$)/);
+      if (mm && mm[1] !== owner) fail(file, 6, `import "${m[1]}" reaches into another owner's folder. Share code through services/ instead.`);
+    }
   }
 
   if (!rel.startsWith('wireframes/')) continue;
