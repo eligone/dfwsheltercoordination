@@ -2,6 +2,9 @@
 /**
  * matchEngine.test.js - tests for UC-5 Find Available Shelters (and UC-6 results), UC-7 Request Dog Transfer, NFR-5, NFR-6.
  * Test case IDs match the SE Document (Part 1.5 and 1.6). Creator: Anais Elizabeth Gonzalez.
+ * Owner: Anais Elizabeth Gonzalez. TC-5-07 to TC-5-10 (incl. 5-09b) and TC-7-05 to TC-7-08 (bottom of the file) were added
+ * on 2026-11-14 with AI assistance (Claude Code) to cover score edge cases, widening, and the UC-7 rules
+ * (all fields missing, one active transfer per dog, audit record, unknown dog).
  */
 import { describe, it, expect } from 'vitest';
 import { createTestApp, signInAs, fillShelters, availableOf, releaseDog } from '../test/testApp.js';
@@ -155,5 +158,92 @@ describe('Audit fix B3: unverified accounts never get matches or contact details
     expect(staff.shelterStore.listShelters().every((r) => r.phone && r.email)).toBe(true);
     expect(staff.alerts.openAlert('A-90').sender.phone).toBe('(972) 555-0103');
     expect(staff.shelterStore.getShelterDetails('collin').phone).toBe('(972) 555-0103');
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// Added 2026-11-14 (Anais Elizabeth Gonzalez, AI-assisted): edge cases and UC-7 rules not covered above.
+// ---------------------------------------------------------------------------------------------
+
+describe('UC-5 score edge cases and widening', () => {
+  it('TC-5-07 E: open spaces stop counting at 50, far shelters get no distance credit (never negative), size fit is worth 0.2', () => {
+    expect(scoreShelter({ distanceMi: 10, openSpaces: 50 })).toBeCloseTo(scoreShelter({ distanceMi: 10, openSpaces: 500 }), 10);
+    expect(scoreShelter({ distanceMi: 20, openSpaces: 0 })).toBeCloseTo(0.2, 10); // only the size-fit part is left
+    expect(scoreShelter({ distanceMi: 25, openSpaces: 0 })).toBeCloseTo(0.2, 10); // past 20 miles: 0, not -0.125
+    expect(scoreShelter({ distanceMi: 0, openSpaces: 0 })).toBeCloseTo(0.7, 10);
+    expect(scoreShelter({ distanceMi: 5, openSpaces: 10, sizeFit: 1 }) - scoreShelter({ distanceMi: 5, openSpaces: 10, sizeFit: 0 })).toBeCloseTo(0.2, 10);
+  });
+  it('TC-5-08 A: the own shelter and full shelters are never listed', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    fillShelters(app, ['irving']);
+    const { matches } = await app.matchEngine.findMatches({ dogId: 'D-1051', size: 'large' });
+    expect(ids(matches)).toEqual(['carr', 'collin', 'dal']);
+    expect(ids(matches).includes('rich')).toBe(false);
+  });
+  it('TC-5-09 A: "Widen search" finds a shelter past 20 miles; if still nothing, the search stays saved', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    fillShelters(app, ['dal', 'plano', 'irving', 'carr']);
+    app.state.shelters.find((s) => s.id === 'collin').distanceMi = 25; // only Collin has space, and it is 25 mi away
+    const first = await app.matchEngine.findMatches({ dogId: 'D-1051', size: 'large' });
+    expect(first).toMatchObject({ matches: [], message: 'No match found', canWiden: true });
+    const wider = await app.matchEngine.widenSearch(first.searchID, 30);
+    expect(ids(wider.matches)).toEqual(['collin']);
+    expect(wider.matches[0].score).toBeCloseTo(0.3 * (40 / 50) + 0.2, 4); // 0.44: distance part is 0, not negative
+  });
+  it('TC-5-09b A: widening still finds nothing, so the search stays saved with the wider distance', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    fillShelters(app, ['dal', 'collin', 'plano', 'irving', 'carr']);
+    const first = await app.matchEngine.findMatches({ dogId: 'D-1051', size: 'large' });
+    const still = await app.matchEngine.widenSearch(first.searchID, 50);
+    expect(still).toMatchObject({ matches: [], message: 'No match found' });
+    expect(app.state.savedSearches).toEqual([expect.objectContaining({ searchID: first.searchID, dogID: 'D-1051', size: 'large', radiusMi: 50 })]);
+  });
+});
+
+describe('UC-7 rules (transfers.createFromMatch)', () => {
+  it('TC-7-05 I: every empty required field is named', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    let err;
+    try { app.transfers.createFromMatch({ shelterID: 'irving', dogId: '', size: '' }); } catch (e) { err = e; }
+    expect(err).toMatchObject({ code: 'VALIDATION', message: 'Please complete the highlighted fields.', fields: ['dogId', 'size'] });
+    expect(app.state.transfers).toHaveLength(3);
+  });
+  it('TC-7-06 E: a dog never gets a second active transfer (NFR-8), whether Pending or Accepted', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    expect(() => app.transfers.createFromMatch({ shelterID: 'irving', dogId: 'D-1042', size: 'large' })).toThrow('This dog already has an active transfer.'); // T-301 Pending
+    expect(() => app.transfers.createFromMatch({ shelterID: 'irving', dogId: 'D-1043', size: 'small' })).toThrow('This dog already has an active transfer.'); // T-302 Accepted
+    const first = app.transfers.createFromMatch({ shelterID: 'irving', dogId: 'D-1051', size: 'large' });
+    expect(first.status).toBe('Pending');
+    expect(() => app.transfers.createFromMatch({ shelterID: 'carr', dogId: 'D-1051', size: 'large' })).toThrow('This dog already has an active transfer.');
+    expect(app.state.transfers.filter((t) => t.dogId === 'D-1051')).toHaveLength(1);
+  });
+  it('TC-7-07 S: every request is recorded (NFR-9) with sender, recipient, staff and outcome', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    const { request } = app.transfers.createFromMatch({ shelterID: 'irving', dogId: 'D-1051', size: 'large', notes: 'Needs daily meds' });
+    expect(request).toMatchObject({ id: 'T-303', status: 'Pending', fromShelterID: 'rich', toShelterID: 'irving', urgency: 'HIGH' }); // Duke is high risk
+    const entry = app.transfers.getAuditLog().find((e) => e.requestID === 'T-303');
+    expect(entry).toMatchObject({ action: 'Created', outcome: 'Pending', senderShelterID: 'rich', recipientShelterID: 'irving', actorStaffID: 1 });
+  });
+  it('TC-7-08 I: an unknown dog ID is refused and nothing is saved', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    expect(() => app.transfers.createFromMatch({ shelterID: 'irving', dogId: 'D-9999', size: 'large' })).toThrow('Dog not found.');
+    expect(app.state.transfers).toHaveLength(3);
+  });
+});
+
+describe('UC-5 alternate 4a: a saved search ends once widening finds a shelter', () => {
+  it('TC-5-10 A: widen finds Collin, so the saved search is removed and no stale "Match found" alert is sent later', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    fillShelters(app, ['dal', 'plano', 'irving', 'carr']);
+    app.state.shelters.find((s) => s.id === 'collin').distanceMi = 25;
+    const first = await app.matchEngine.findMatches({ dogId: 'D-1051', size: 'large' });
+    expect(app.state.savedSearches).toHaveLength(1);
+    const wider = await app.matchEngine.widenSearch(first.searchID, 30);
+    expect(ids(wider.matches)).toEqual(['collin']);
+    expect(app.state.savedSearches).toHaveLength(0); // staff now have a match; nothing left to rerun
+    signInAs(app, 'dal');
+    app.shelterStore.updateCapacity('dal', 5); // any capacity update used to rerun the old search
+    await app.settle();
+    expect(app.state.alerts.some((a) => a.recipientShelterID === 'rich' && a.message.startsWith('Match found for Duke'))).toBe(false);
   });
 });

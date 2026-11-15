@@ -95,7 +95,11 @@ export function createMatchEngine(ctx) {
       const saved = state.savedSearches.find((s) => s.searchID === searchID);
       if (!saved) throw new ServiceError('NOT_FOUND', 'Search not found.');
       saved.radiusMi = radiusMi;
-      return this.findMatches({ dogId: saved.dogID, size: saved.size, radiusMi, save: false });
+      const result = await this.findMatches({ dogId: saved.dogID, size: saved.size, radiusMi, save: false });
+      // UC-5 4a: the search stays saved only while there is still no match. Once widening finds a shelter,
+      // remove it so a later capacity update does not send a stale "Match found" alert (fixed 2026-11-14, TC-5-10).
+      if (result.matches.length) state.savedSearches = state.savedSearches.filter((s) => s.searchID !== searchID);
+      return result;
     },
     /** The next screen prompt waiting for this shelter's staff (e.g. "Select the dog's size"). */
     takePrompt(shelterID) {
