@@ -128,9 +128,9 @@ export default function UpdateCapacity({ app }) {
           role="dialog"
           aria-modal="true"
           aria-label="Confirm capacity update"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+         className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40"
         >
-          <div className="w-full max-w-md rounded-lg bg-white p-6 text-black shadow-lg">
+          <div className="w-full max-w-md rounded-lg bg-surface p-6 text-ink shadow-lg">
             <h2 className="text-xl font-bold">
               Confirm Capacity Update
             </h2>
