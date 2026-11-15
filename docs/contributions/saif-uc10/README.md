@@ -10,7 +10,7 @@ Modules: `frontend/src/features/saif/MyDogsTransfers.jsx` owns list/details rend
 
 Cross-team integration: `frontend/src/services/index.js` adds an optional, idempotent unsubscribe return value to the existing event bus and emits over a snapshot so listener cleanup cannot skip the next listener. Existing callers may continue ignoring the return value. `events.test.js` tests cleanup and duplicate subscriptions. No transfer creation, matching, acceptance rules, shared UI components or design tokens were changed.
 
-This branch builds on the UC-8 work in PR #5. It includes that commit until the parent feature is integrated. Only the later UC-10 commit adds this contribution.
+This branch builds on the UC-8 work in PR #5 and incorporates concurrent main changes through 00b2629 (the team moved Joshua’s files to the approved folder). The UC-10 implementation is commit 4d82d7b. Draft review: https://github.com/eligone/dfwsheltercoordination/pull/6.
 
 ## Preview and reproduce
 
@@ -40,10 +40,10 @@ Additional authorization/lifecycle checks: anonymous list/details refused; unver
 Environment: macOS arm64, Node 25.9.0, npm 11.12.1, Vitest 5.1.0, Vite 8.3.8, Playwright Chromium. Existing dependency engine warning applies to Node 25; CI uses Node 22.
 
 - `npm run test -- src/features/saif/MyDogsTransfers.test.jsx src/services/myDogs.test.js src/services/events.test.js`: 16 passed across 3 files.
-- `npm run test:coverage`: all 138 tests passed across 15 files in 10.65 seconds. Overall statements 94.50%, branches 86.28%; services statements 96.49%. Raw output: [unit-coverage.txt](unit-coverage.txt).
+- `npm run test:coverage`: all 138 tests passed across 15 files in 10.63 seconds after integrating current main. Overall statements 89.89%, branches 82.37%; services statements 96.49%. Moving Joshua’s files into features/ correctly includes them in coverage now. Raw output: [unit-coverage.txt](unit-coverage.txt).
 - `npm run build`: passed; viewer and Saif feature entry built.
 - `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/saif-uc8-browsers npx playwright test --config playwright.saif.config.js`: all 6 browser tests passed in 3.3 seconds, covering both UC-8 and UC-10. Standard setup: `npx playwright install chromium`, then omit the custom browser path.
-- `npm run check:ui`: failed on the same 6 existing Rule 2 folder violations under `src/featuresjoshua/joshua/`; no UC-10 violations reported. This team issue still blocks green UI CI.
+- `npm run check:ui`: initially reported the six known folder violations on the older base. The team concurrently corrected the folder on main (00b2629); after incorporating that change, the local checker passed. GitHub UI, unit and browser checks also passed on the PR’s tested merge tree.
 - Deliberate-fault check: temporarily disabled the transfer-change listener; the live-update component test failed because Biscuit remained Pending. Restored the original source and reran that test successfully. This was an automated Codex check, not human verification.
 
 Screenshots reviewed by Codex: [list](list.png), [details](details.png), [live update](live-update.png), [empty list and denied access](denied.png).

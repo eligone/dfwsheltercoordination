@@ -9,25 +9,27 @@
 
  Test Files  15 passed (15)
       Tests  138 passed (138)
-   Start at  17:53:01
-   Duration  10.65s (tests 74%, environment 17%, setup 4%, worker 2%, import 2%, transform 1%)
-
-    Isolate  15 workers spawned · ~484ms startup each (spawn + environment, per file)
-             at least ~553ms faster with isolate: false — reuses workers across files instead of one per file
+   Start at  17:58:07
+   Duration  10.63s (tests 78%, environment 14%, setup 3%, import 2%, transform 1%, worker 1%)
 
  % Coverage report from v8
 -------------------|---------|----------|---------|---------|-------------------
 File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
 -------------------|---------|----------|---------|---------|-------------------
-All files          |    94.5 |    86.28 |   97.01 |   96.42 |
+All files          |   89.89 |    82.37 |   91.81 |   91.79 |
  features/anais    |   87.78 |    80.39 |    92.5 |   88.88 |
   FindShelters.jsx |   97.18 |    91.37 |     100 |   98.03 | 59
   MatchFlow.jsx    |   94.11 |       80 |   85.71 |   94.11 | 51
   ...tTransfer.jsx |   93.75 |    80.76 |     100 |     100 | 34,52
   demo.jsx         |       0 |        0 |       0 |       0 | 17-34
+ features/joshua   |   69.23 |    67.62 |   72.97 |   71.42 |
+  ...lTransfer.jsx |   82.81 |     84.9 |   83.33 |   86.95 | 55-61,100
+  ...dTransfer.jsx |   94.25 |    80.32 |   94.44 |   95.23 | 44,57,176
+  TransferFlow.jsx |       0 |        0 |       0 |       0 | 14-45
+  demo.jsx         |       0 |        0 |       0 |       0 | 21-46
  features/saif     |   86.44 |    86.79 |    90.9 |   86.66 |
   ...Transfers.jsx |    92.3 |    84.21 |   91.66 |   89.47 | 18,40
-  demo.jsx         |       0 |        0 |       0 |       0 | 9-12
+  demo.jsx         |       0 |        0 |       0 |       0 | 9-13
  services          |   96.49 |    87.83 |   98.54 |   98.94 |
   alertService.js  |   93.22 |    81.13 |      92 |   97.29 | 73
   authService.js   |     100 |    93.75 |     100 |     100 | 17
@@ -42,8 +44,8 @@ All files          |    94.5 |    86.28 |   97.01 |   96.42 |
 -------------------|---------|----------|---------|---------|-------------------
 
 =============================== Coverage summary ===============================
-Statements   : 94.5% ( 826/874 )
-Branches     : 86.28% ( 453/525 )
-Functions    : 97.01% ( 260/268 )
-Lines        : 96.42% ( 594/616 )
+Statements   : 89.89% ( 961/1069 )
+Branches     : 82.37% ( 547/664 )
+Functions    : 91.81% ( 314/342 )
+Lines        : 91.79% ( 694/756 )
 ================================================================================
