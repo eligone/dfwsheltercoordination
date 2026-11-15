@@ -15,8 +15,19 @@ import { createDashboard } from './dashboard.js';
 function createEvents(track) {
   const handlers = {};
   return {
-    on(name, fn) { (handlers[name] ??= []).push(fn); },
-    emit(name, payload) { (handlers[name] ?? []).forEach((fn) => track(fn(payload))); },
+    // Return a cleanup function so mounted screens can unsubscribe (UC-10).
+    on(name, fn) {
+      const list = handlers[name] ??= [];
+      list.push(fn);
+      let active = true;
+      return () => {
+        if (!active) return;
+        active = false;
+        const i = list.indexOf(fn);
+        if (i !== -1) list.splice(i, 1);
+      };
+    },
+    emit(name, payload) { [...(handlers[name] ?? [])].forEach((fn) => track(fn(payload))); },
   };
 }
 

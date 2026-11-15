@@ -1,0 +1,49 @@
+
+> dfw-coordination-frontend@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v5.1.0 /Users/saifyusuff/Documents/Codex/2026-11-15/files-mentioned-by-the-user-codex/work/dfwsheltercoordination/frontend
+      Coverage enabled with v8
+
+
+ Test Files  15 passed (15)
+      Tests  138 passed (138)
+   Start at  17:53:01
+   Duration  10.65s (tests 74%, environment 17%, setup 4%, worker 2%, import 2%, transform 1%)
+
+    Isolate  15 workers spawned · ~484ms startup each (spawn + environment, per file)
+             at least ~553ms faster with isolate: false — reuses workers across files instead of one per file
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    94.5 |    86.28 |   97.01 |   96.42 |
+ features/anais    |   87.78 |    80.39 |    92.5 |   88.88 |
+  FindShelters.jsx |   97.18 |    91.37 |     100 |   98.03 | 59
+  MatchFlow.jsx    |   94.11 |       80 |   85.71 |   94.11 | 51
+  ...tTransfer.jsx |   93.75 |    80.76 |     100 |     100 | 34,52
+  demo.jsx         |       0 |        0 |       0 |       0 | 17-34
+ features/saif     |   86.44 |    86.79 |    90.9 |   86.66 |
+  ...Transfers.jsx |    92.3 |    84.21 |   91.66 |   89.47 | 18,40
+  demo.jsx         |       0 |        0 |       0 |       0 | 9-12
+ services          |   96.49 |    87.83 |   98.54 |   98.94 |
+  alertService.js  |   93.22 |    81.13 |      92 |   97.29 | 73
+  authService.js   |     100 |    93.75 |     100 |     100 | 17
+  dashboard.js     |     100 |     92.3 |     100 |     100 | 16,24
+  index.js         |   97.05 |    93.75 |   91.66 |      96 | 37
+  matchEngine.js   |   91.86 |    82.69 |     100 |   96.36 | 30-31
+  models.js        |      92 |       60 |     100 |     100 | 32-33
+  ...ionService.js |   94.66 |    82.69 |     100 |   98.21 | 42
+  pdf.js           |     100 |    85.71 |     100 |     100 | 18
+  shelterStore.js  |   98.66 |    95.45 |     100 |     100 | 54,63
+  ...ferService.js |   97.32 |    91.01 |     100 |     100 | ...35,146,148,164
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 94.5% ( 826/874 )
+Branches     : 86.28% ( 453/525 )
+Functions    : 97.01% ( 260/268 )
+Lines        : 96.42% ( 594/616 )
+================================================================================
