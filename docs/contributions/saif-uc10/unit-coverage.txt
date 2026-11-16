@@ -1,0 +1,51 @@
+
+> dfw-coordination-frontend@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v5.1.0 /Users/saifyusuff/Documents/Codex/2026-11-15/files-mentioned-by-the-user-codex/work/dfwsheltercoordination/frontend
+      Coverage enabled with v8
+
+
+ Test Files  15 passed (15)
+      Tests  138 passed (138)
+   Start at  17:58:07
+   Duration  10.63s (tests 78%, environment 14%, setup 3%, import 2%, transform 1%, worker 1%)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   89.89 |    82.37 |   91.81 |   91.79 |
+ features/anais    |   87.78 |    80.39 |    92.5 |   88.88 |
+  FindShelters.jsx |   97.18 |    91.37 |     100 |   98.03 | 59
+  MatchFlow.jsx    |   94.11 |       80 |   85.71 |   94.11 | 51
+  ...tTransfer.jsx |   93.75 |    80.76 |     100 |     100 | 34,52
+  demo.jsx         |       0 |        0 |       0 |       0 | 17-34
+ features/joshua   |   69.23 |    67.62 |   72.97 |   71.42 |
+  ...lTransfer.jsx |   82.81 |     84.9 |   83.33 |   86.95 | 55-61,100
+  ...dTransfer.jsx |   94.25 |    80.32 |   94.44 |   95.23 | 44,57,176
+  TransferFlow.jsx |       0 |        0 |       0 |       0 | 14-45
+  demo.jsx         |       0 |        0 |       0 |       0 | 21-46
+ features/saif     |   86.44 |    86.79 |    90.9 |   86.66 |
+  ...Transfers.jsx |    92.3 |    84.21 |   91.66 |   89.47 | 18,40
+  demo.jsx         |       0 |        0 |       0 |       0 | 9-13
+ services          |   96.49 |    87.83 |   98.54 |   98.94 |
+  alertService.js  |   93.22 |    81.13 |      92 |   97.29 | 73
+  authService.js   |     100 |    93.75 |     100 |     100 | 17
+  dashboard.js     |     100 |     92.3 |     100 |     100 | 16,24
+  index.js         |   97.05 |    93.75 |   91.66 |      96 | 37
+  matchEngine.js   |   91.86 |    82.69 |     100 |   96.36 | 30-31
+  models.js        |      92 |       60 |     100 |     100 | 32-33
+  ...ionService.js |   94.66 |    82.69 |     100 |   98.21 | 42
+  pdf.js           |     100 |    85.71 |     100 |     100 | 18
+  shelterStore.js  |   98.66 |    95.45 |     100 |     100 | 54,63
+  ...ferService.js |   97.32 |    91.01 |     100 |     100 | ...35,146,148,164
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 89.89% ( 961/1069 )
+Branches     : 82.37% ( 547/664 )
+Functions    : 91.81% ( 314/342 )
+Lines        : 91.79% ( 694/756 )
+================================================================================
