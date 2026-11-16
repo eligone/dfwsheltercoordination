@@ -63,6 +63,13 @@ export function createAlertService(ctx) {
         outcome: request ? { requestID: request.id, status: request.status, history: state.auditLog.filter((e) => e.requestID === request.id) } : null,
       };
     },
+        /** Wireframe action "Mark as read": marks one alert read without opening it (FR-26). */
+    markRead(id) {
+      const staff = auth.requireStaff();
+      const a = state.alerts.find((x) => x.id === id && x.recipientShelterID === staff.shelterID);
+      if (!a) throw new ServiceError('FORBIDDEN', MESSAGES.OWN_ALERTS);
+      a.read = true;
+    },
     markUnread(id) {
       const staff = auth.requireStaff();
       const a = state.alerts.find((x) => x.id === id && x.recipientShelterID === staff.shelterID);
