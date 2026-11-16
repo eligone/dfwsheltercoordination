@@ -3,16 +3,8 @@
 import { useEffect, useState } from 'react';
 import Frame from './Frame.jsx';
 
-const modules = import.meta.glob('../wireframes/*/*.wf.jsx', { eager: true });
-
-const wireframes = Object.entries(modules)
-  .map(([path, mod]) => {
-    const [, folder, file] = path.match(/wireframes\/([^/]+)\/([^/]+)\.wf\.jsx$/);
-    return { key: `${folder}/${file}`, folder, file, meta: mod.meta ?? {}, Component: mod.default };
-  })
-  .sort((a, b) => a.key.localeCompare(b.key));
-
-const folders = [...new Set(wireframes.map((w) => w.folder))];
+// Load independently: a broken fixture in one owner's module must not blank the gallery.
+const modules = import.meta.glob('../wireframes/*/*.wf.jsx');
 
 function useHash() {
   const [hash, setHash] = useState(() => decodeURIComponent(location.hash.slice(1)));
@@ -25,6 +17,24 @@ function useHash() {
 }
 
 export default function Viewer() {
+  const [wireframes, setWireframes] = useState([]);
+  const [failures, setFailures] = useState([]);
+  useEffect(() => {
+    let active = true;
+    Promise.all(Object.entries(modules).map(async ([path, load]) => {
+      const [, folder, file] = path.match(/wireframes\/([^/]+)\/([^/]+)\.wf\.jsx$/);
+      try {
+        const mod = await load();
+        return { key: `${folder}/${file}`, folder, file, meta: mod.meta ?? {}, Component: mod.default };
+      } catch { return { failed: `${folder}/${file}` }; }
+    })).then((loaded) => {
+      if (!active) return;
+      setWireframes(loaded.filter((w) => !w.failed).sort((a, b) => a.key.localeCompare(b.key)));
+      setFailures(loaded.filter((w) => w.failed).map((w) => w.failed));
+    });
+    return () => { active = false; };
+  }, []);
+  const folders = [...new Set(wireframes.map((w) => w.folder))];
   const hash = useHash(); // "" = everything, "anais" = one folder, "anais/match-results" = one wireframe
   const shown = wireframes.filter((w) => !hash || w.folder === hash || w.key === hash);
 
@@ -46,10 +56,15 @@ export default function Viewer() {
             </ul>
           </div>
         ))}
+        <div className="mt-6 border-t border-line pt-4">
+          <p className="mb-2 font-semibold">Working screens</p>
+          <a className="text-muted underline" href="./saif-demo.html">Saif · UC-8 / UC-10</a>
+        </div>
         {wireframes.length === 0 && <p className="text-muted">No wireframes yet.</p>}
       </aside>
 
       <main className="flex-1 space-y-12 p-8">
+        {failures.length > 0 && <p role="alert" className="text-sm text-muted">Unable to load wireframes: {failures.join(', ')}. Check their mock fixtures. Other wireframes remain available.</p>}
         {shown.map((w) => (
           <section key={w.key} id={w.key}>
             <h2 className="mb-3 text-sm font-semibold text-muted">{w.key}.wf.jsx</h2>

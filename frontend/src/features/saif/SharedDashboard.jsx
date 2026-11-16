@@ -1,7 +1,7 @@
 /** UC-8/UC-10: authenticated dashboard and My Dogs screen flow.
  * Owner: Saif Yusuff. Composes shared UI and consumes existing shelter/auth services.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { Badge, Button, Card, Input, PageShell, Table } from '../../components/ui';
 import MyDogsTransfers from './MyDogsTransfers.jsx';
 
@@ -9,6 +9,13 @@ export default function SharedDashboard({ app, initialPage = 'home', initialRequ
   const [page, setPage] = useState(initialPage === 'dogs' ? 'dogs' : 'home');
   const [session, setSession] = useState(() => app.auth.currentStaff()?.staffID ?? null);
   const [error, setError] = useState('');
+  const [, refresh] = useReducer((n) => n + 1, 0);
+  // Capacity changes in this app update Home immediately; polling also updates stale labels.
+  useEffect(() => {
+    const unsubscribe = app.events.on('capacity-updated', refresh);
+    const timer = setInterval(refresh, 5000);
+    return () => { unsubscribe(); clearInterval(timer); };
+  }, [app]);
   const staff = app.auth.currentStaff();
   // Observe external sign-out; protected rows are never retained in component state.
   useEffect(() => {
@@ -62,7 +69,7 @@ export default function SharedDashboard({ app, initialPage = 'home', initialRequ
       </>}>
       <p className="text-sm text-muted">Signed in: {staff.name} · {app.shelterStore.getShelter(staff.shelterID)?.name}</p>
       {page === 'dogs' ? <MyDogsTransfers key={staff.staffID} app={app} initialRequestID={initialRequestID} /> : <>
-      <Card title="Nearby shelters">
+      <Card title="Nearby shelters" actions={<Button variant="secondary" size="sm" onClick={refresh}>Refresh</Button>}>
         {rows.length ? <div className="overflow-x-auto"><Table columns={columns} rows={rows} /></div> : <p role="status">No shelter data available.</p>}
       </Card>
       <p className="text-sm text-muted">Near Full: at least 85% occupied. Full: 100% occupied. Outdated: no update for 24 hours or more, or no update recorded.</p>
