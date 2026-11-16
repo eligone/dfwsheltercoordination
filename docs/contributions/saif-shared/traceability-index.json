@@ -1,0 +1,833 @@
+{
+  "baseline": "9911f38",
+  "requirements": [
+    {
+      "id": "FR-1",
+      "requirement": "Update available capacity",
+      "usecases": "UC-1",
+      "tests": "TC-1-01, TC-1-02",
+      "code": "SH",
+      "evidence": "S passed. Capacity changes and audit record verified; UC-1 screen is not present in this checkout."
+    },
+    {
+      "id": "FR-2",
+      "requirement": "Reject negative or above-maximum values",
+      "usecases": "UC-1",
+      "tests": "TC-1-03, TC-1-04, TC-1-05",
+      "code": "SH",
+      "evidence": "S passed for negative, above-max, boundary, empty and nonnumeric input. Screen validation not rerun here."
+    },
+    {
+      "id": "FR-3",
+      "requirement": "Confirm or cancel before saving",
+      "usecases": "UC-1",
+      "tests": "TC-1-01, TC-1-06",
+      "code": "SH",
+      "evidence": "S passed for preview-before-save and dropping a draft. No confirmation/cancel screen is exercised by these service tests."
+    },
+    {
+      "id": "FR-4",
+      "requirement": "View capacity change history (date, time, person)",
+      "usecases": "UC-2",
+      "tests": "TC-2-01, TC-2-02",
+      "code": "SH",
+      "evidence": "S passed for history values, staff names and ordering. History screen not in this checkout."
+    },
+    {
+      "id": "FR-5",
+      "requirement": "Filter history: month, six months, year",
+      "usecases": "UC-2",
+      "tests": "TC-2-01, TC-2-02, TC-2-03",
+      "code": "SH",
+      "evidence": "S passed for all three ranges and no records; UI range controls not rerun here."
+    },
+    {
+      "id": "FR-6",
+      "requirement": "Download history as PDF",
+      "usecases": "UC-2",
+      "tests": "TC-2-04, TC-2-05",
+      "code": "SH",
+      "evidence": "S passed for PDF signature/content and empty-record refusal. Browser download flow not rerun here."
+    },
+    {
+      "id": "FR-7",
+      "requirement": "Update current occupancy",
+      "usecases": "UC-1, UC-4",
+      "tests": "TC-1-01, TC-4-01, TC-4-02, TC-4-04",
+      "code": "SH/TR",
+      "evidence": "S/C passed for UC-4 occupancy effects; UC-1 manual occupancy entry has service evidence only."
+    },
+    {
+      "id": "FR-8",
+      "requirement": "Live dashboard of all shelters' capacity",
+      "usecases": "UC-8; A3 also cross-references UC-3",
+      "tests": "TC-8-01, NTC-03",
+      "code": "DA/SA",
+      "evidence": "Dashboard display S/C/B passed. Five-second scheduling S passed; UC-8 screen does not start that scheduler. Live refresh remains partial."
+    },
+    {
+      "id": "FR-9",
+      "requirement": "Create transfer request (urgency, needs)",
+      "usecases": "UC-3",
+      "tests": "TC-3-01, TC-3-02, TC-3-03",
+      "code": "TR/JO",
+      "evidence": "S/C passed for request creation, missing fields and no-match handling using seeded dog needs."
+    },
+    {
+      "id": "FR-10",
+      "requirement": "Score and rank shelters for a request",
+      "usecases": "UC-3",
+      "tests": "TC-3-01, TC-3-05, TC-5-01",
+      "code": "MA/TR/JO",
+      "evidence": "S/C passed for current distance/open-space/size score and medical exclusion. A3 also mentions breed; breed is not a scoring input. Team clarification needed."
+    },
+    {
+      "id": "FR-11",
+      "requirement": "Notify on high-urgency request; accept or decline",
+      "usecases": "UC-3, UC-4",
+      "tests": "TC-3-01, TC-4-01, TC-4-03",
+      "code": "TR/AL/JO",
+      "evidence": "S/C passed for high-priority request, accept and decline. Alert delivery uses stubs."
+    },
+    {
+      "id": "FR-12",
+      "requirement": "Auto-search when a shelter is full",
+      "usecases": "UC-5",
+      "tests": "TC-5-03, TC-5-05",
+      "code": "MA/AN",
+      "evidence": "S/C passed for full-capacity prompt and search flow; saved-search rerun also verified."
+    },
+    {
+      "id": "FR-13",
+      "requirement": "Manual match request for a dog",
+      "usecases": "UC-5",
+      "tests": "TC-5-01, TC-5-02, TC-5-04, TC-5-06, TC-5-09, TC-5-10",
+      "code": "MA/AN",
+      "evidence": "S/C passed for manual selection, validation, cancel and widening; B covers a manual match flow."
+    },
+    {
+      "id": "FR-14",
+      "requirement": "Rank by distance, open spaces, size fit",
+      "usecases": "UC-5",
+      "tests": "TC-5-01, TC-5-02, TC-5-07, TC-5-08",
+      "code": "MA/AN",
+      "evidence": "S/C passed for fixed ranking and score boundaries; B covers representative large-dog ranking. Mapping is stubbed."
+    },
+    {
+      "id": "FR-15",
+      "requirement": "Show name, distance, open spaces, contact",
+      "usecases": "UC-6",
+      "tests": "TC-5-01",
+      "code": "MA/AN",
+      "evidence": "S/C passed; B checks a selected shelter contact. Match-results display is embedded in UC-5, not a standalone UC-6 page."
+    },
+    {
+      "id": "FR-16",
+      "requirement": "Send transfer request from match results",
+      "usecases": "UC-7",
+      "tests": "TC-7-01, TC-7-02, TC-7-03, TC-7-04, TC-7-05, TC-7-06, TC-7-07, TC-7-08",
+      "code": "TR/AN",
+      "evidence": "S/C passed; B covers a successful request. Duplicate-active-transfer and invalid dog checks also exist."
+    },
+    {
+      "id": "FR-17",
+      "requirement": "Alerts to requesting and receiving staff",
+      "usecases": "UC-14 (new)",
+      "tests": "TC-3-01, TC-7-01, TC-14-01",
+      "code": "AL/TR",
+      "evidence": "S passed for sender/receiver alerts; UC-3/7 C checks consume results. UC-14 inbox screen not present here."
+    },
+    {
+      "id": "FR-18",
+      "requirement": "Medical information; filter shelters that cannot accommodate",
+      "usecases": "UC-3",
+      "tests": "TC-3-04",
+      "code": "MA/JO",
+      "evidence": "S/C passed for medical-capability exclusion. Dog medical data is seeded; the requirement to add/edit medical information has no demonstrated editor."
+    },
+    {
+      "id": "FR-19",
+      "requirement": "Accept or decline with optional reason",
+      "usecases": "UC-4",
+      "tests": "TC-4-01, TC-4-03, TC-4-04, TC-4-05",
+      "code": "TR/JO",
+      "evidence": "S/C passed for accept, decline with reason, full shelter and illegal transitions."
+    },
+    {
+      "id": "FR-20",
+      "requirement": "Dog status follows transfer status",
+      "usecases": "UC-4, UC-10",
+      "tests": "TC-4-01, TC-4-02, TC-4-05, TC-4-06, TC-10-03",
+      "code": "TR/JO/SA",
+      "evidence": "S/C passed for transitions and completion; UC-10 B confirms displayed acceptance without reload. Status is stored on TransferRequest."
+    },
+    {
+      "id": "FR-21",
+      "requirement": "Notify accepted, declined, cancelled",
+      "usecases": "UC-14",
+      "tests": "TC-14-05, TC-4-07a, TC-4-07b, TC-4-07c",
+      "code": "AL/TR",
+      "evidence": "S passed for accepted/declined/cancelled notices and cancellation recipients. Dedicated inbox UI not verified."
+    },
+    {
+      "id": "FR-22",
+      "requirement": "On-site alert inbox",
+      "usecases": "UC-14",
+      "tests": "TC-14-01, TC-14-04",
+      "code": "AL",
+      "evidence": "S passed for inbox contents and exact empty message. Inbox wireframe exists; working UC-14 feature screen not present here."
+    },
+    {
+      "id": "FR-23",
+      "requirement": "Add phone numbers and emails",
+      "usecases": "UC-15 (new)",
+      "tests": "TC-15-01, TC-15-02, TC-15-06",
+      "code": "NO",
+      "evidence": "S passed for email/phone validation, duplicates and removal. UC-15 working screen not present here."
+    },
+    {
+      "id": "FR-24",
+      "requirement": "Reminder if request not viewed",
+      "usecases": "UC-15",
+      "tests": "TC-15-03, TC-15-04, TC-15-04b",
+      "code": "NO",
+      "evidence": "S passed for saved reminder settings, delayed unviewed reminder, and suppression after viewing. No running background timer is proven."
+    },
+    {
+      "id": "FR-25",
+      "requirement": "Alerts include animal info and sender contact",
+      "usecases": "UC-14",
+      "tests": "TC-14-02",
+      "code": "AL",
+      "evidence": "S passed for dog/sender contact detail. Verification redaction covered by NTC-07c; alert detail screen not verified."
+    },
+    {
+      "id": "FR-26",
+      "requirement": "Read/unread, mark read after viewing",
+      "usecases": "UC-14",
+      "tests": "TC-14-01, TC-14-02",
+      "code": "AL",
+      "evidence": "S passed for opening an alert marking it read and explicit unread support. Screen behavior not verified."
+    },
+    {
+      "id": "FR-27",
+      "requirement": "Unread count",
+      "usecases": "UC-14",
+      "tests": "TC-14-01, TC-14-02, TC-14-03",
+      "code": "AL",
+      "evidence": "S passed for unread count before/after opening and marking read. Live shared bell integration not verified."
+    },
+    {
+      "id": "FR-28",
+      "requirement": "Priority labels",
+      "usecases": "UC-14",
+      "tests": "TC-14-01",
+      "code": "AL",
+      "evidence": "S passed for priority labels and ordering. Inbox screen not verified."
+    },
+    {
+      "id": "FR-29",
+      "requirement": "Filter by priority",
+      "usecases": "UC-14",
+      "tests": "TC-14-03",
+      "code": "AL",
+      "evidence": "S passed for high-priority/unread filtering. UI filter not verified."
+    },
+    {
+      "id": "FR-30",
+      "requirement": "View past alerts and outcomes",
+      "usecases": "UC-14",
+      "tests": "TC-14-02",
+      "code": "AL",
+      "evidence": "S passed for stored outcome/history when opening a past alert. Screen not verified."
+    },
+    {
+      "id": "FR-31",
+      "requirement": "Prioritize high-risk animals",
+      "usecases": "UC-14",
+      "tests": "TC-14-06",
+      "code": "AL",
+      "evidence": "S passed for high-risk/high-urgency priority. Real delivery remains stubbed."
+    },
+    {
+      "id": "FR-32",
+      "requirement": "All shelters within 20 miles on dashboard",
+      "usecases": "UC-8",
+      "tests": "TC-8-01, TC-8-03",
+      "code": "SH/SA",
+      "evidence": "S/C/B passed for six participating seeded shelters and empty data. All seed shelters are in range; dashboard has no separate out-of-area exclusion check."
+    },
+    {
+      "id": "FR-33",
+      "requirement": "Dogs housed, available kennels, total capacity",
+      "usecases": "UC-8",
+      "tests": "TC-8-01",
+      "code": "SH/SA",
+      "evidence": "S/C passed for every seeded count; B confirms the table and representative values."
+    },
+    {
+      "id": "FR-34",
+      "requirement": "Open / Near Full / Full labels",
+      "usecases": "UC-8",
+      "tests": "TC-8-01, TC-8-02",
+      "code": "SH/SA",
+      "evidence": "S/C passed for all five occupancy boundaries; B checks Near Full/Outdated examples. Service gives Outdated precedence at 24 hours."
+    },
+    {
+      "id": "FR-35",
+      "requirement": "Shelter details: address, phone, email, last update",
+      "usecases": "UC-9",
+      "tests": "TC-9-01",
+      "code": "SH",
+      "evidence": "S passed for Collin address/contact/time. No standalone UC-9 working page or row-selection UI in this checkout."
+    },
+    {
+      "id": "FR-36",
+      "requirement": "\"My Shelter\" dogs with transfer status",
+      "usecases": "UC-10",
+      "tests": "TC-10-01, TC-10-02, TC-10-03, TC-10-04",
+      "code": "TR/SA",
+      "evidence": "S/C/B passed for own-shelter rows, details, Completed, exact empty state, live acceptance and cross-shelter refusal."
+    },
+    {
+      "id": "FR-37",
+      "requirement": "Filter and sort dashboard by status, distance, kennels",
+      "usecases": "UC-8, UC-12",
+      "tests": "TC-11-02, TC-12-01",
+      "code": "DA",
+      "evidence": "S passed for status filtering and kennel/distance ordering. Home toolbar not integrated; no numeric distance filter is demonstrated."
+    },
+    {
+      "id": "FR-38",
+      "requirement": "Search by name or location",
+      "usecases": "UC-11",
+      "tests": "TC-11-01, TC-11-03, TC-11-04, TC-11-05",
+      "code": "DA",
+      "evidence": "S passed for case-insensitive name/location, clearing, no match and unusual input. Working UC-11 screen not present here."
+    },
+    {
+      "id": "FR-39",
+      "requirement": "Filter by status",
+      "usecases": "UC-11",
+      "tests": "TC-11-02, TC-11-04",
+      "code": "DA",
+      "evidence": "S passed for status and combined search/filter. Dashboard UI control not integrated."
+    },
+    {
+      "id": "FR-40",
+      "requirement": "Sort by available kennels",
+      "usecases": "UC-12",
+      "tests": "TC-12-01",
+      "code": "DA",
+      "evidence": "S passed for kennel ordering both directions; distance ordering also asserted. Working sort control not integrated."
+    },
+    {
+      "id": "FR-41",
+      "requirement": "Show last-updated date and time",
+      "usecases": "UC-13",
+      "tests": "TC-13-02, TC-8-01",
+      "code": "SH/DA/SA",
+      "evidence": "S passed for timestamps and missing-value label; UC-8 C checks timestamp rendering and missing value. B screenshot includes UTC times."
+    },
+    {
+      "id": "FR-42",
+      "requirement": "Refresh dashboard",
+      "usecases": "UC-13",
+      "tests": "TC-13-01, TC-13-03",
+      "code": "DA",
+      "evidence": "S passed for latest data, failure preserving rows and coalesced requests. Refresh control not integrated into UC-8 screen."
+    },
+    {
+      "id": "NFR-1",
+      "requirement": "Only authorized staff update capacity",
+      "usecases": "UC-1",
+      "tests": "NTC-01",
+      "code": "SH",
+      "evidence": "S passed: all four unauthorized update attempts refused; capacity unchanged. Mock authorization only."
+    },
+    {
+      "id": "NFR-2",
+      "requirement": "Save and show capacity within 2 s",
+      "usecases": "UC-1",
+      "tests": "NTC-02",
+      "code": "SH",
+      "evidence": "Not Run in this checkout: no NTC-02 browser test present. Hoang supplied a separate 20/20 browser report (max 917.04 ms); not independently reproduced here."
+    },
+    {
+      "id": "NFR-3",
+      "requirement": "Dashboard refresh 5 s; search within 4 s",
+      "usecases": "UC-8, UC-11 (dashboard scope)",
+      "tests": "NTC-03, NTC-04",
+      "code": "DA",
+      "evidence": "S passed: six scheduled callbacks in simulated 30 seconds and timed search calls under 4 s. Scheduler is not wired into current UC-8 UI; screen-level live refresh remains open."
+    },
+    {
+      "id": "NFR-4",
+      "requirement": "Staff only; edit own shelter only",
+      "usecases": "System-wide (UC-1, UC-4, UC-10)",
+      "tests": "NTC-05, TC-10-04, TC-8-04",
+      "code": "AU/TR",
+      "evidence": "S/C/B passed for sampled own-shelter restrictions, anonymous refusal and UC-10 access. This is not a complete security audit or a production backend."
+    },
+    {
+      "id": "NFR-5",
+      "requirement": "Match results within 5 s",
+      "usecases": "UC-5, UC-7",
+      "tests": "NTC-06",
+      "code": "MA",
+      "evidence": "S passed for 30 mock match requests under 5 s. B evidence from the CI matching flow covers a representative 300 ms mapping-delay case."
+    },
+    {
+      "id": "NFR-6",
+      "requirement": "Only verified accounts see matches and contacts",
+      "usecases": "UC-6, UC-7; contacts in UC-8, UC-10, UC-14",
+      "tests": "NTC-07, NTC-07b, NTC-07c, TC-10-02",
+      "code": "AU/MA/TR",
+      "evidence": "S/C passed for unverified match refusal and redacted contacts; UC-10 C checks redaction. Seeded verification is not real account verification."
+    },
+    {
+      "id": "NFR-7",
+      "requirement": "Retry failed notifications and log",
+      "usecases": "UC-15",
+      "tests": "NTC-08, TC-15-05",
+      "code": "NO",
+      "evidence": "S passed for three failed attempts and one logged failure, using stub channels. Real email/SMS outage recovery not verified."
+    },
+    {
+      "id": "NFR-8",
+      "requirement": "No two active transfers for one animal",
+      "usecases": "UC-3, UC-7 (transfer service)",
+      "tests": "NTC-09, TC-7-06",
+      "code": "TR",
+      "evidence": "S passed for two concurrent attempts in 100 fresh apps and duplicate match requests. Browser-local integrity only; no database concurrency test."
+    },
+    {
+      "id": "NFR-9",
+      "requirement": "Record of every request, sender, recipient, outcome",
+      "usecases": "UC-3, UC-4, UC-7 (transfer service)",
+      "tests": "NTC-10, TC-7-07",
+      "code": "TR",
+      "evidence": "S passed for audit fields and retention at 364/366 days. In-memory records are not persistent production audit storage."
+    },
+    {
+      "id": "NFR-10",
+      "requirement": "Staff see only their own inbox",
+      "usecases": "UC-14",
+      "tests": "NTC-11",
+      "code": "AL",
+      "evidence": "S passed for own inbox and denied other-shelter alert ID. Working inbox UI not verified."
+    },
+    {
+      "id": "NFR-11",
+      "requirement": "At most three main tabs",
+      "usecases": "UC-8 (all screens)",
+      "tests": "NTC-12",
+      "code": "SA/UI",
+      "evidence": "Not Run for full scenario. Home/My Dogs each have three labels in C/B; Settings, Alerts and Shelter Details were not all verified."
+    },
+    {
+      "id": "NFR-12",
+      "requirement": "New user finds kennels within 1 minute",
+      "usecases": "UC-8",
+      "tests": "NTC-13",
+      "code": "SA",
+      "evidence": "Not Run. Requires five actual first-time users and measured task times; no participants or timings fabricated."
+    },
+    {
+      "id": "NFR-13",
+      "requirement": "Search/filter in 4 s for 95% of requests (500 records)",
+      "usecases": "UC-11",
+      "tests": "NTC-14",
+      "code": "DA",
+      "evidence": "S passed for 100 search/filter operations over 500 generated records. Rendering/network time and production load are not measured."
+    },
+    {
+      "id": "NFR-14",
+      "requirement": "Sign-in required",
+      "usecases": "System-wide; UC-8, UC-10, UC-11, UC-12",
+      "tests": "NTC-15, TC-8-04",
+      "code": "AU/SA",
+      "evidence": "S/C/B passed for sign-in boundary, bad credentials, successful sign-in and cleared-session removal. Auth is an in-memory mock, not token-based production login."
+    }
+  ],
+  "modules": [
+    [
+      "SH",
+      "services/shelterStore.js",
+      "services/shelterStore.test.js; services/dashboard.test.js"
+    ],
+    [
+      "DA",
+      "services/dashboard.js",
+      "services/dashboard.test.js"
+    ],
+    [
+      "TR",
+      "services/transferService.js",
+      "services/transferService.test.js; services/myDogs.test.js; services/matchEngine.test.js"
+    ],
+    [
+      "MA",
+      "services/matchEngine.js",
+      "services/matchEngine.test.js"
+    ],
+    [
+      "AL",
+      "services/alertService.js",
+      "services/alertService.test.js"
+    ],
+    [
+      "NO",
+      "services/notificationService.js",
+      "services/notificationService.test.js"
+    ],
+    [
+      "AU",
+      "services/authService.js",
+      "services/dashboard.test.js; services/myDogs.test.js; services/matchEngine.test.js"
+    ],
+    [
+      "AN",
+      "features/anais/",
+      "FindShelters.test.jsx; MatchFlow.test.jsx; RequestTransfer.test.jsx; e2e/anais-match-flow.spec.js"
+    ],
+    [
+      "JO",
+      "features/joshua/",
+      "RequestAnimalTransfer.test.jsx; RespondTransfer.test.jsx"
+    ],
+    [
+      "SA",
+      "features/saif/",
+      "SharedDashboard.test.jsx; MyDogsTransfers.test.jsx; e2e/saif-*.spec.js"
+    ],
+    [
+      "UI",
+      "components/ui/NavBar.jsx",
+      "Navigation assertions embedded in Saif component/browser tests"
+    ]
+  ],
+  "catalog": {
+    "TC-7-01": [
+      "frontend/e2e/anais-match-flow.spec.js",
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/RequestTransfer.test.jsx"
+    ],
+    "NTC-06": [
+      "frontend/e2e/anais-match-flow.spec.js",
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-10-01": [
+      "frontend/e2e/saif-transfers.spec.js",
+      "frontend/src/services/myDogs.test.js",
+      "frontend/src/features/saif/MyDogsTransfers.test.jsx"
+    ],
+    "TC-10-03": [
+      "frontend/e2e/saif-transfers.spec.js",
+      "frontend/e2e/saif-transfers.spec.js",
+      "frontend/src/services/myDogs.test.js",
+      "frontend/src/features/saif/MyDogsTransfers.test.jsx",
+      "frontend/src/features/saif/MyDogsTransfers.test.jsx"
+    ],
+    "TC-8-01": [
+      "frontend/src/services/dashboard.test.js",
+      "frontend/src/features/saif/SharedDashboard.test.jsx"
+    ],
+    "TC-8-02": [
+      "frontend/src/services/dashboard.test.js",
+      "frontend/src/features/saif/SharedDashboard.test.jsx"
+    ],
+    "TC-8-03": [
+      "frontend/src/services/dashboard.test.js",
+      "frontend/src/features/saif/SharedDashboard.test.jsx"
+    ],
+    "TC-8-04": [
+      "frontend/src/services/dashboard.test.js",
+      "frontend/src/features/saif/SharedDashboard.test.jsx"
+    ],
+    "TC-9-01": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-11-01": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-11-02": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-11-03": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-11-04": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-11-05": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-12-01": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-13-01": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-13-02": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-13-03": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "NTC-03": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "NTC-04": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "NTC-14": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "NTC-15": [
+      "frontend/src/services/dashboard.test.js"
+    ],
+    "TC-15-01": [
+      "frontend/src/services/notificationService.test.js"
+    ],
+    "TC-15-02": [
+      "frontend/src/services/notificationService.test.js"
+    ],
+    "TC-15-03": [
+      "frontend/src/services/notificationService.test.js"
+    ],
+    "TC-15-04": [
+      "frontend/src/services/notificationService.test.js"
+    ],
+    "TC-15-04b": [
+      "frontend/src/services/notificationService.test.js"
+    ],
+    "TC-15-05": [
+      "frontend/src/services/notificationService.test.js"
+    ],
+    "TC-15-06": [
+      "frontend/src/services/notificationService.test.js"
+    ],
+    "NTC-08": [
+      "frontend/src/services/notificationService.test.js"
+    ],
+    "TC-5-01": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/FindShelters.test.jsx"
+    ],
+    "TC-5-02": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/FindShelters.test.jsx"
+    ],
+    "TC-5-03": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/MatchFlow.test.jsx"
+    ],
+    "TC-5-04": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/FindShelters.test.jsx"
+    ],
+    "TC-5-05": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-5-06": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/MatchFlow.test.jsx",
+      "frontend/src/features/anais/FindShelters.test.jsx"
+    ],
+    "TC-7-02": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/RequestTransfer.test.jsx"
+    ],
+    "TC-7-03": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/RequestTransfer.test.jsx",
+      "frontend/src/features/anais/MatchFlow.test.jsx"
+    ],
+    "TC-7-04": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "NTC-07": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/FindShelters.test.jsx"
+    ],
+    "NTC-07b": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "NTC-07c": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-5-07": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-5-08": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-5-09": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/FindShelters.test.jsx"
+    ],
+    "TC-5-09b": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-7-05": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-7-06": [
+      "frontend/src/services/matchEngine.test.js",
+      "frontend/src/features/anais/RequestTransfer.test.jsx"
+    ],
+    "TC-7-07": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-7-08": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-5-10": [
+      "frontend/src/services/matchEngine.test.js"
+    ],
+    "TC-1-01": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-1-02": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-1-03": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-1-04": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-1-05": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-1-06": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-2-01": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-2-02": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-2-03": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-2-04": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-2-05": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "NTC-01": [
+      "frontend/src/services/shelterStore.test.js"
+    ],
+    "TC-14-01": [
+      "frontend/src/services/alertService.test.js"
+    ],
+    "TC-14-02": [
+      "frontend/src/services/alertService.test.js"
+    ],
+    "TC-14-03": [
+      "frontend/src/services/alertService.test.js"
+    ],
+    "TC-14-04": [
+      "frontend/src/services/alertService.test.js"
+    ],
+    "TC-14-05": [
+      "frontend/src/services/alertService.test.js"
+    ],
+    "TC-14-06": [
+      "frontend/src/services/alertService.test.js"
+    ],
+    "NTC-11": [
+      "frontend/src/services/alertService.test.js"
+    ],
+    "TC-3-01": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RequestAnimalTransfer.test.jsx"
+    ],
+    "TC-3-02": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RequestAnimalTransfer.test.jsx"
+    ],
+    "TC-3-03": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RequestAnimalTransfer.test.jsx"
+    ],
+    "TC-3-04": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RequestAnimalTransfer.test.jsx"
+    ],
+    "TC-3-05": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RequestAnimalTransfer.test.jsx"
+    ],
+    "TC-4-01": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RespondTransfer.test.jsx"
+    ],
+    "TC-4-01b": [
+      "frontend/src/services/transferService.test.js"
+    ],
+    "TC-4-02": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RespondTransfer.test.jsx"
+    ],
+    "TC-4-03": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RespondTransfer.test.jsx"
+    ],
+    "TC-4-03b": [
+      "frontend/src/services/transferService.test.js"
+    ],
+    "TC-4-04": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RespondTransfer.test.jsx"
+    ],
+    "TC-4-05": [
+      "frontend/src/services/transferService.test.js",
+      "frontend/src/features/joshua/RespondTransfer.test.jsx"
+    ],
+    "NTC-09": [
+      "frontend/src/services/transferService.test.js"
+    ],
+    "NTC-10": [
+      "frontend/src/services/transferService.test.js"
+    ],
+    "TC-4-06": [
+      "frontend/src/services/transferService.test.js"
+    ],
+    "TC-4-07a": [
+      "frontend/src/services/transferService.test.js"
+    ],
+    "TC-4-07b": [
+      "frontend/src/services/transferService.test.js"
+    ],
+    "TC-4-07c": [
+      "frontend/src/services/transferService.test.js"
+    ],
+    "TC-10-02": [
+      "frontend/src/services/myDogs.test.js",
+      "frontend/src/features/saif/MyDogsTransfers.test.jsx"
+    ],
+    "TC-10-04": [
+      "frontend/src/services/myDogs.test.js",
+      "frontend/src/features/saif/MyDogsTransfers.test.jsx"
+    ],
+    "NTC-05": [
+      "frontend/src/services/myDogs.test.js"
+    ]
+  },
+  "non_executable_cases": {
+    "NTC-02": [
+      "NFR-2"
+    ],
+    "NTC-12": [
+      "NFR-11"
+    ],
+    "NTC-13": [
+      "NFR-12"
+    ]
+  }
+}
