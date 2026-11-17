@@ -1,5 +1,5 @@
 /** Saif Yusuff: UC-8 component acceptance tests, including protected-data removal. */
-import { render, screen, within, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, within, waitFor, cleanup, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, it, expect } from 'vitest';
 import { createTestApp, signInAs } from '../../test/testApp.js';
@@ -42,6 +42,15 @@ describe('UC-8 Shared Dashboard screen', () => {
     app.auth.signOut();
     await waitFor(()=>expect(screen.queryByRole('table')).not.toBeInTheDocument());
     expect(screen.getByRole('button',{name:'Sign in'})).toBeInTheDocument();
+  });
+  it('updates capacity immediately after a shared-service change and supports manual refresh', async () => {
+    const app = signInAs(createTestApp(), 'rich');
+    render(<SharedDashboard app={app} />);
+    act(() => { app.shelterStore.updateCapacity('rich', 60); });
+    expect(within(screen.getAllByRole('row')[1]).getByText('Open')).toBeInTheDocument();
+    app.state.shelters[0].dogsHoused = 60;
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Refresh' }));
+    expect(within(screen.getAllByRole('row')[1]).getByText('Full')).toBeInTheDocument();
   });
   it('shows missing timestamps and lets staff sign out', async () => {
     const app=signInAs(createTestApp(),'rich'); app.state.shelters[0].lastUpdated=null;

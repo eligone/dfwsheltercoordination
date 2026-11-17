@@ -60,48 +60,32 @@ The app has three core components:
 cd frontend && npm install && npm run dev   # wireframe viewer at http://localhost:5173
 ```
 
-## Tech Stack
+## Current Assignment 4 stack and running code
 
-- **Frontend:** [e.g. React]
-- **Backend:** [e.g. Node.js / Express, Python / Flask]
-- **Database:** [e.g. PostgreSQL, MongoDB]
-- **Authentication:** [e.g. JWT-based login, OAuth]
-- **Hosting/Deployment:** [e.g. Render, Vercel, Heroku]
-
-*(Fill in once the team locks in the stack — see the Statement of Work for the authentication/registration requirement.)*
-
-## Getting Started
-
-### Prerequisites
-
-- [Language/runtime version, e.g. Node.js 18+]
-- [Database installed locally, or a connection string for a hosted instance]
-
-### Installation
+The implemented Part 1 stack is **React 19 + Vite 8 + Tailwind CSS 4**, with plain JavaScript in-memory services. See [ADR-0009](docs/adr/0009-part1-implementation-layout-and-test-stack.md). The architecture diagram above describes the planned backend; this repository does not yet connect to a production database or Petfinder API.
 
 ```bash
-git clone https://github.com/[org]/[repo-name].git
-cd [repo-name]
-[install command, e.g. npm install]
+cd frontend
+npm ci
+npm run dev
 ```
 
-### Environment Variables
+Open the URL Vite prints, then:
 
-Create a `.env` file in the project root:
+- **Wireframe gallery:** `/`; choose a teammate's name. Saif's UC-8 and UC-10 states are under **Saif**.
+- **Working UC-8/UC-10 screens:** `/saif-demo.html?fixture=true`, also linked under **Working screens** in the gallery.
+- **Mock sign-in:** `jdoe@richardson.example` / `pw-rich`.
+- **My Dogs:** choose **View my dogs**; select **View details** on a transfer; **Back to Home** returns to the dashboard.
 
-```
-DATABASE_URL=
-JWT_SECRET=
-[other keys as needed]
-```
-
-### Running Locally
+These are working components in `frontend/src/features/saif/`, separate from the static assignment wireframes in `frontend/src/wireframes/saif/`. The explicit fixture clock reproduces the assignment data; omit `?fixture=true` to use the current clock. In-memory changes reset on reload.
 
 ```bash
-[start command, e.g. npm run dev]
+npm run check:ui
+npm run build
+npm run test:coverage
+npx playwright install chromium
+npm run test:e2e
 ```
-
-The app will be available at `http://localhost:[port]`.
 
 ## Team
 
