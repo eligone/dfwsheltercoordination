@@ -77,3 +77,14 @@ describe('NFR-10 inbox privacy', () => {
     expect(() => app.alerts.openAlert('A-90')).toThrow('You can only view alerts for your shelter.');
   });
 });
+describe('UC-14 Mark as read (single alert)', () => {
+  it('markRead marks one alert read, markUnread reverses it, and another shelter\'s alert is refused', () => {
+    const app = signInAs(createTestApp(), 'rich');
+    app.alerts.markRead('A-90');
+    expect(app.alerts.unreadCount()).toBe(1);
+    app.alerts.markUnread('A-90');
+    expect(app.alerts.unreadCount()).toBe(2);
+    signInAs(app, 'dal');
+    expect(() => app.alerts.markRead('A-90')).toThrow('You can only view alerts for your shelter.');
+  });
+});
