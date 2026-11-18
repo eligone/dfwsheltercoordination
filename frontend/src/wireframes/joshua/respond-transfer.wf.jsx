@@ -2,8 +2,8 @@
 // The receiving shelter opens an incoming request (from the bell alert), checks its own
 // capacity, and accepts or declines. Declining asks for a reason. Accepting shares contact info.
 import { Badge, Banner, Button, CapacityBar, Card, Input, Modal, PageShell, Select } from '../../components/ui';
-import { dogs, transfers } from '../../mock/dogs.js';
-import { availableKennels, myShelterId, shelters } from '../../mock/shelters.js';
+import { dogs, incomingTransfer as request } from '../../mock/dogs.js';
+import { availableKennels, shelters } from '../../mock/shelters.js';
 
 export const meta = {
   uc: 'UC-4',
@@ -13,10 +13,9 @@ export const meta = {
   states: ['default', 'decline', 'accepted'],
 };
 
-const request = transfers.find((t) => t.id === 'T-305');
 const dog = dogs.find((d) => d.id === request.dogId);
 const from = shelters.find((s) => s.id === request.from);
-const me = shelters.find((s) => s.id === myShelterId);
+const me = shelters.find((s) => s.id === request.to);
 
 const Row = ({ label, children }) => (
   <>
