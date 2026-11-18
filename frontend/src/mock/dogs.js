@@ -15,6 +15,17 @@ export const transfers = [
   { id: 'T-298', dogId: 'D-1060', from: 'rich', to: 'irving', requested: '2026-10-30 16:45', status: 'Completed' },
 ];
 
+// Incoming request used to illustrate the receiving shelter's response flow.
+export const incomingTransfer = {
+  id: 'T-305',
+  dogId: 'D-1051',
+  from: 'dal',
+  to: 'rich',
+  requested: '2026-11-04 08:20',
+  reason: 'Dallas is nearing capacity and needs a kennel for Duke.',
+  status: 'Pending',
+};
+
 export const alerts = [
   { id: 'A-90', priority: 'high', read: false, title: 'Match found for Biscuit (D-1042)', from: 'collin', time: '2026-11-04 08:20' },
   { id: 'A-89', priority: 'medium', read: false, title: 'Transfer T-302 accepted by Plano', from: 'plano', time: '2026-11-03 11:02' },
