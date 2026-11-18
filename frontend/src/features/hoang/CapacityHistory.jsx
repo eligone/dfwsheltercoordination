@@ -77,6 +77,7 @@ export default function CapacityHistory({ app }) {
     return <p>Please sign in to view capacity history.</p>;
   }
 
+  const shelter = app.shelterStore.getShelter(shelterId);
   const columns = [
     {
       key: 'recordedAt',
@@ -103,7 +104,7 @@ export default function CapacityHistory({ app }) {
     <PageShell
       nav="Home"
       title="Capacity Change History"
-      subtitle="Richardson Animal Shelter"
+      subtitle={shelter?.name}
     >
       {error && (
         <Banner tone="alert" title="Error">

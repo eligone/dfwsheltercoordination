@@ -4,7 +4,7 @@
  * FR-1, FR-2, FR-3, FR-7
  * Author: Hoang Pham
  */
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Banner, Button, Card, Input, PageShell
 } from '../../components/ui';
@@ -23,6 +23,19 @@ export default function UpdateCapacity({ app }) {
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [saving, setSaving] = useState(false);
+  const dialogRef = useRef(null);
+  const confirming = preview !== null;
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (confirming) {
+      dialog.showModal();
+      return () => dialog.close();
+    }
+  }, [confirming]);
 
   if (!staff || !shelter) {
     return <p>Please sign in to view your shelter.</p>;
@@ -44,11 +57,14 @@ export default function UpdateCapacity({ app }) {
   }
 
   async function handleConfirm() {
+    if (saving || !preview) return;
+
+    setSaving(true);
     try {
       const result = await app.shelterStore.updateCapacity(
-  shelterId,
-  preview.newAvailable
-);
+        shelterId,
+        preview.newAvailable
+      );
       setShelter(result.shelter);
       setValue(String(result.shelter.availableKennels));
       setSuccess(result.message);
@@ -57,10 +73,14 @@ export default function UpdateCapacity({ app }) {
     } catch (err) {
       setError(err.message);
       setPreview(null);
+    } finally {
+      setSaving(false);
     }
   }
 
   function handleCancel() {
+    if (saving) return;
+
     setPreview(null);
     setError('');
     setSuccess('');
@@ -123,31 +143,28 @@ export default function UpdateCapacity({ app }) {
         </div>
       </Card>
 
-      {preview && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Confirm capacity update"
-         className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40"
-        >
-          <div className="w-full max-w-md rounded-lg bg-surface p-6 text-ink shadow-lg">
-            <h2 className="text-xl font-bold">
-              Confirm Capacity Update
-            </h2>
+      <dialog
+        ref={dialogRef}
+        aria-label="Confirm capacity update"
+        aria-busy={saving}
+        onCancel={(event) => {
+          event.preventDefault();
+          handleCancel();
+        }}
+        className="m-auto w-full max-w-md rounded-lg bg-surface p-6 text-ink shadow-lg backdrop:bg-ink/40"
+      >
+        <h2 className="text-xl font-bold">Confirm Capacity Update</h2>
+        <p className="my-5">{preview?.prompt}</p>
 
-            <p className="my-5">{preview.prompt}</p>
-
-            <div className="flex gap-3">
-              <Button variant="secondary" onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button onClick={handleConfirm}>
-                Confirm
-              </Button>
-            </div>
-          </div>
+        <div className="flex gap-3">
+          <Button variant="secondary" onClick={handleCancel} disabled={saving}>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirm} disabled={saving}>
+            {saving ? 'Saving?' : 'Confirm'}
+          </Button>
         </div>
-      )}
+      </dialog>
     </PageShell>
   );
 }
