@@ -11,7 +11,8 @@ const RANK = { high: 0, medium: 1, low: 2 };
 const LABEL = { high: 'High', medium: 'Medium', low: 'Low' };
 
 export function createAlertService(ctx) {
-  const { state, clock, auth } = ctx;
+  const { state, clock, auth, events } = ctx;
+  const changed = () => events.emit('alerts-changed');
   const shelterName = (id) => state.shelters.find((s) => s.id === id)?.name ?? id;
 
   const view = (a) => ({
@@ -29,6 +30,7 @@ export function createAlertService(ctx) {
     create({ type, priority, message, recipientShelterID, senderShelterID = null, transferRequestID = null, dogId = null, dispatch = true }) {
       const alert = { id: `A-${state.counters.alert++}`, type, priority, message, createdAt: clock.now(), read: false, recipientShelterID, senderShelterID, transferRequestID, dogId, cancelled: false };
       state.alerts.push(alert);
+      changed();
       if (dispatch) ctx.track(ctx.notifications.dispatch(alert));
       return alert;
     },
@@ -56,11 +58,14 @@ export function createAlertService(ctx) {
       alert.read = true;
       const request = state.transfers.find((t) => t.id === alert.transferRequestID);
       if (request) request.viewedBy[staff.shelterID] = clock.now(); // stops the FR-24 reminder
+      changed();
       const sender = alert.senderShelterID ? state.shelters.find((s) => s.id === alert.senderShelterID) : null;
       const dog = state.dogs.find((d) => d.id === (alert.dogId ?? request?.dogId)) ?? null;
       return {
         alert: view(alert), dog, sender: sender ? { name: sender.name, phone: staff.verified ? sender.phone : null, email: staff.verified ? sender.email : null } : null, // NFR-6
         outcome: request ? { requestID: request.id, status: request.status, history: state.auditLog.filter((e) => e.requestID === request.id) } : null,
+        incomingRequestID: request && !alert.cancelled && request.fromShelterID !== staff.shelterID
+          && (request.toShelterID === staff.shelterID || request.alertedTo.includes(staff.shelterID)) ? request.id : null,
       };
     },
         /** Wireframe action "Mark as read": marks one alert read without opening it (FR-26). */
@@ -69,14 +74,19 @@ export function createAlertService(ctx) {
       const a = state.alerts.find((x) => x.id === id && x.recipientShelterID === staff.shelterID);
       if (!a) throw new ServiceError('FORBIDDEN', MESSAGES.OWN_ALERTS);
       a.read = true;
+      changed();
     },
     markUnread(id) {
       const staff = auth.requireStaff();
       const a = state.alerts.find((x) => x.id === id && x.recipientShelterID === staff.shelterID);
       if (!a) throw new ServiceError('FORBIDDEN', MESSAGES.OWN_ALERTS);
       a.read = false;
+      changed();
     },
-    markAllRead() { mine(auth.requireStaff()).forEach((a) => { a.read = true; }); },
+    markAllRead() {
+      mine(auth.requireStaff()).forEach((a) => { a.read = true; });
+      changed();
+    },
     unreadCount() { return mine(auth.requireStaff()).filter((a) => !a.read).length; },
   };
 }

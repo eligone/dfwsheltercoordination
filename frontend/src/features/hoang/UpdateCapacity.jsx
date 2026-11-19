@@ -9,7 +9,7 @@ import {
   Banner, Button, Card, Input, PageShell
 } from '../../components/ui';
 
-export default function UpdateCapacity({ app }) {
+export default function UpdateCapacity({ app, onFindMatch }) {
   const staff = app.auth.currentStaff();
   const shelterId = staff?.shelterID;
 
@@ -100,7 +100,9 @@ export default function UpdateCapacity({ app }) {
       )}
 
       {success && (
-        <Banner tone="success" title="Capacity updated">
+        <Banner tone="success" title="Capacity updated" action={onFindMatch && shelter.availableKennels === 0 && (
+          <Button size="sm" onClick={onFindMatch}>Find Match</Button>
+        )}>
           {success}
         </Banner>
       )}

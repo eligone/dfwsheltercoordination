@@ -15,7 +15,7 @@ const ranges = [
   { value: 'PAST_YEAR', label: 'Past year' },
 ];
 
-export default function CapacityHistory({ app }) {
+export default function CapacityHistory({ app, nav = 'Home' }) {
   const staff = app.auth.currentStaff();
   const shelterId = staff?.shelterID;
 
@@ -102,7 +102,7 @@ export default function CapacityHistory({ app }) {
 
   return (
     <PageShell
-      nav="Home"
+      nav={nav}
       title="Capacity Change History"
       subtitle={shelter?.name}
     >

@@ -7,7 +7,7 @@
  * or the service's message ("This shelter no longer has space.", "Accept the request first.", ...).
  * Owner: Joshua Nakka. AI-assisted draft (Claude); reviewed and explained by the owner.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge, Banner, Button, CapacityBar, Card, Input, Modal, Table } from '../../components/ui';
 import { scoreShelter } from '../../services/matchEngine.js';
 
@@ -23,15 +23,29 @@ const Row = ({ label, children }) => (
 );
 
 /** @param app the shared services from createApp() (staff of the receiving shelter signed in) */
-export default function RespondTransfer({ app }) {
+export default function RespondTransfer({ app, initialRequestID = null }) {
   const staff = app.auth.currentStaff();
-  const [openId, setOpenId] = useState(null);
+  const [openId, setOpenId] = useState(initialRequestID);
   const [match, setMatch] = useState(null); // { distance, score } worked out when the request is opened
   const [notice, setNotice] = useState(null); // { tone, title, body }
   const [declining, setDeclining] = useState(false);
   const [reason, setReason] = useState('');
   const [, setVersion] = useState(0);
   const refresh = () => setVersion((v) => v + 1);
+
+  useEffect(() => {
+    const transfer = app.state.transfers.find((t) => t.id === openId);
+    if (!staff || !transfer || (transfer.toShelterID !== staff.shelterID && !transfer.alertedTo.includes(staff.shelterID))) return;
+    const from = app.state.shelters.find((s) => s.id === transfer.fromShelterID);
+    const to = app.state.shelters.find((s) => s.id === staff.shelterID);
+    const openSpaces = to.totalCapacity - to.dogsHoused;
+    let active = true;
+    app.mapping.getDistance(from, to).then(
+      (distance) => { if (active) setMatch({ distance, score: scoreShelter({ distanceMi: distance, openSpaces, sizeFit: 1 }) }); },
+      () => { if (active) setMatch({ distance: null, score: null }); },
+    );
+    return () => { active = false; };
+  }, [app, openId, staff?.shelterID]);
 
   if (!staff) return <Banner tone="alert" title="Please sign in." />;
   const shelterOf = (id) => app.state.shelters.find((s) => s.id === id);
@@ -45,17 +59,12 @@ export default function RespondTransfer({ app }) {
   const myStatus = (t) => (t.responses[me.id]?.status === 'Declined' && t.status === 'Pending' ? 'Declined' : t.status);
 
   /** Opening a request opens its alert (marks it read, FR-25/FR-26) and works out distance and score. */
-  async function open(t) {
-    setNotice(null); setDeclining(false); setReason(''); setMatch(null);
+  function open(t) {
+    setNotice(null); setDeclining(false); setReason('');
+    if (t.id !== openId) setMatch(null);
     const alert = app.state.alerts.find((a) => a.transferRequestID === t.id && a.recipientShelterID === me.id && !a.cancelled);
     if (alert) app.alerts.openAlert(alert.id);
     setOpenId(t.id);
-    try {
-      const distance = await app.mapping.getDistance(shelterOf(t.fromShelterID), me);
-      setMatch({ distance, score: scoreShelter({ distanceMi: distance, openSpaces: me.totalCapacity - me.dogsHoused, sizeFit: 1 }) });
-    } catch {
-      setMatch({ distance: null, score: null });
-    }
   }
 
   function run(action) {
@@ -158,8 +167,8 @@ export default function RespondTransfer({ app }) {
             <Card title="Transfer contact">
               <dl className="grid grid-cols-[10rem_1fr] gap-y-2 text-sm">
                 <Row label="Shelter">{from.name}</Row>
-                <Row label="Phone">{from.phone}</Row>
-                <Row label="Email">{from.email}</Row>
+                <Row label="Phone">{staff.verified ? from.phone : 'Not available'}</Row>
+                <Row label="Email">{staff.verified ? from.email : 'Not available'}</Row>
                 <Row label="Address">{from.address}</Row>
                 <Row label="Their available kennels">{from.totalCapacity - from.dogsHoused}</Row>
               </dl>

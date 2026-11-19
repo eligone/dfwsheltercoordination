@@ -58,6 +58,7 @@ export default function Viewer() {
         ))}
         <div className="mt-6 border-t border-line pt-4">
           <p className="mb-2 font-semibold">Working screens</p>
+          <p><a className="text-muted underline" href="./app.html">Integrated demo</a></p>
           <a className="text-muted underline" href="./saif-demo.html">Saif · UC-8 / UC-10</a>
         </div>
         {wireframes.length === 0 && <p className="text-muted">No wireframes yet.</p>}

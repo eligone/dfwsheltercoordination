@@ -72,6 +72,8 @@ npm run dev
 
 Open the URL Vite prints, then:
 
+- **Integrated class demo:** `/app.html`. Sign in as Richardson with `jdoe@richardson.example` / `pw-rich`. Use **Home** to update capacity and find matches, **My Dogs** for outgoing and incoming transfer requests, **Settings** for history and notification preferences, and the **bell** for alerts.
+- **Show a transfer across shelters:** Find a match for Duke and send a request to Collin County Animal Services. Sign out and sign in as `staff@collin.example` / `pw-collin` in the same tab. Open Duke's alert and accept the request. Sign back in as Richardson and check **My Dogs** for the Accepted status. The demo uses mock data and resets on page reload.
 - **Wireframe gallery:** `/`; choose a teammate's name. Saif's UC-8 and UC-10 states are under **Saif**.
 - **Working UC-8/UC-10 screens:** `/saif-demo.html?fixture=true`, also linked under **Working screens** in the gallery.
 - **Mock sign-in:** `jdoe@richardson.example` / `pw-rich`.
