@@ -12,10 +12,11 @@ import RequestTransfer from './RequestTransfer.jsx';
 
 const TITLES = { dashboard: 'Home', find: 'Find Available Shelters', request: 'Request Dog Transfer' };
 
-export default function MatchFlow({ app }) {
-  const [view, setView] = useState({ screen: 'dashboard' });
+export default function MatchFlow({ app, onBack, prompt }) {
+  const [view, setView] = useState(() => onBack ? { screen: 'find', prompt } : { screen: 'dashboard' });
   const staff = app.auth.currentStaff();
   const home = staff ? app.shelterStore.getShelter(staff.shelterID) : null;
+  const backToHome = onBack ?? (() => setView({ screen: 'dashboard' }));
 
   /** FR-12: marking the shelter Full goes through the capacity service (UC-1), which leaves a size prompt for us. */
   function markFull() {
@@ -38,7 +39,7 @@ export default function MatchFlow({ app }) {
     body = (
       <FindShelters
         key={view.key ?? 'find'} app={app} prompt={view.prompt} notice={view.notice} initial={view.initial} autoSearch={!!view.initial}
-        onCancel={() => setView({ screen: 'dashboard' })}
+        onCancel={backToHome}
         onSelect={(match, criteria) => setView({ screen: 'request', match, ...criteria })}
       />
     );
@@ -48,7 +49,7 @@ export default function MatchFlow({ app }) {
         app={app} match={view.match} dog={view.dog} size={view.size}
         // UC-7 alternate 4a: a message means the shelter filled up, so rerun the same search for an updated list.
         onBack={(message) => setView({ screen: 'find', key: Date.now(), notice: message, initial: { dogId: view.dog?.id, size: view.size, radiusMi: view.radiusMi } })}
-        onDone={() => setView({ screen: 'dashboard' })}
+        onDone={backToHome}
       />
     );
   }

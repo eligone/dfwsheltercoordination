@@ -24,7 +24,7 @@ if (!existsSync(skill)) errors.push('  .claude/skills/ui/SKILL.md is missing. Do
 
 // Only these places may hold source files (Rule 2: no components outside components/ui).
 // ADR-0009 added services/, features/ and test/ for Assignment 4 (implementation + tests).
-const ALLOWED_TOP = ['components/ui/', 'mock/', 'viewer/', 'wireframes/', 'services/', 'features/', 'test/', 'main.jsx', 'index.css'];
+const ALLOWED_TOP = ['components/ui/', 'app/', 'mock/', 'viewer/', 'wireframes/', 'services/', 'features/', 'test/', 'main.jsx', 'index.css'];
 
 const PALETTE = 'slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|black';
 const DEFAULT_COLOR_CLASS = new RegExp(`\\b(?:bg|text|border|ring|fill|stroke|from|via|to|outline|divide|decoration|shadow|placeholder|accent|caret)-(?:${PALETTE})(?:-\\d{2,3})?\\b`);

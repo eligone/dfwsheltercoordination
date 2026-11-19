@@ -40,8 +40,8 @@ function AlertRow({ a, onView, onToggleRead }) {
   );
 }
 
-function Detail({ details, onClose }) {
-  const { alert, dog, sender, outcome } = details;
+function Detail({ details, onClose, onOpenTransfer }) {
+  const { alert, dog, sender, outcome, incomingRequestID } = details;
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
@@ -82,6 +82,7 @@ function Detail({ details, onClose }) {
             )}
           </div>
           <footer className="flex justify-end gap-2 border-t border-line px-5 py-3">
+            {onOpenTransfer && incomingRequestID && <Button onClick={() => onOpenTransfer(incomingRequestID)}>Open transfer request</Button>}
             <Button variant="secondary" autoFocus onClick={onClose}>Close</Button>
           </footer>
         </div>
@@ -95,7 +96,7 @@ function Detail({ details, onClose }) {
  * @param onChange  called after anything that changes the unread count, so the shell can refresh the bell badge
  * @param onBack    "Back to Home"
  */
-export default function AlertsInbox({ app, onChange = () => {}, onBack }) {
+export default function AlertsInbox({ app, onChange = () => {}, onBack, onOpenTransfer }) {
   const [priority, setPriority] = useState('All priorities');
   const [tab, setTab] = useState('All');
   const [details, setDetails] = useState(null);
@@ -184,7 +185,7 @@ export default function AlertsInbox({ app, onChange = () => {}, onBack }) {
       </Card>
       {!inbox.isEmpty && <p className="text-center text-sm text-muted">Showing {inbox.alerts.length} of {total} alerts</p>}
 
-      {details && <Detail details={details} onClose={() => setDetails(null)} />}
+      {details && <Detail details={details} onClose={() => setDetails(null)} onOpenTransfer={onOpenTransfer} />}
     </PageShell>
   );
 }
